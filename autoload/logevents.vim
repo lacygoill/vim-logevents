@@ -1,3 +1,71 @@
+" close "{{{
+
+fu! s:close() abort
+    try
+        au! log_events | aug! log_events
+        call s:write('Stopped logging events')
+
+        " NOTE:
+        " Here's a bit of code showing how to build a pane descriptor from a pane ID.
+        "
+        " A pane ID begins with a `%` sign; ex:
+        "         %456
+        " A pane descriptor follows the format `session_name:window_index.pane_index`; ex:
+        "         study:1.2
+
+        "         let descriptor_list = systemlist(
+        "                     \ "tmux list-panes -a -F '#D #S #I #P'"
+        "                     \ ."| awk 'substr($1, 2) == ".s:pane_id." { print $2, $3, $4 }'"
+        "                     \ )
+        "
+        "         let [ session, window, pane ] = split(descriptor_list[0], ' ')
+        "         let pane_descriptor = session.':'.window .'.'.pane
+
+        " I got this code by reading the plugin `vim-tmuxify`:
+        "         https://github.com/jebaum/vim-tmuxify/blob/master/autoload/tmuxify.vim
+        "
+        " In particular the function `s:get_pane_descriptor_from_id()`.
+        " The functions `pane_create()` and `pane_kill()` are also interesting.
+        "
+        " Explanation:
+        " Example of command executed by `systemlist()`:
+        "
+        "                          ┌─ list all the panes, not just the ones in the current window
+        "                          │  ┌─ format the output of the command; here according to the string:
+        "                          │  │          '#D #S #I #P'
+        "                          │  │            │  │  │  │
+        "                          │  │            │  │  │  └─ index of pane
+        "                          │  │            │  │  └─ index of window
+        "                          │  │            │  └─ name of session
+        "                          │  │            └─ unique pane ID (ex: %42)
+        "                          │  │
+        "         tmux list-panes -a -F '#D #S #I #P' | awk 'substr($1, 2) == 456 { print $2, $3, $4 }'
+        "                                                    │                            │
+        "                                                    │                            └─ print:
+        "                                                    │                                 session name
+        "                                                    │                                 window index
+        "                                                    │                                 pane index
+        "                                                    │
+        "                                                    └─ remove the `%` prefix from the 1st field
+        "                                                       and compare the pane ID with `456`;
+        "                                                       `456` is the unique pane ID of the pane
+        "                                                       we're interested in
+        "
+        " Example of output for the command `tmux list-panes -a -F '#D #S #I #P'`:
+        "
+        "         %0 fun 1 1
+        "         %123 study 1 2
+        "         %456 study 1 2
+
+        sil call system('tmux kill-pane -t %'.s:pane_id)
+        unlet! s:file s:pane_id
+    catch
+    endtry
+endfu
+
+"}}}
+" complete "{{{
+
 " These events are deliberately left out due to side effects:
 "
 "         - SourceCmd
@@ -95,75 +163,18 @@ fu! logevents#complete(lead, line, _pos) abort
     return filter(copy(s:events), 'v:val[:strlen(a:lead)-1] ==? a:lead')
 endfu
 
-fu! s:close() abort
-    try
-        au! log_events | aug! log_events
-        call s:write('Stopped logging events')
-
-        " NOTE:
-        " Here's a bit of code showing how to build a pane descriptor from a pane ID.
-        "
-        " A pane ID begins with a `%` sign; ex:
-        "         %456
-        " A pane descriptor follows the format `session_name:window_index.pane_index`; ex:
-        "         study:1.2
-
-        "         let descriptor_list = systemlist(
-        "                     \ "tmux list-panes -a -F '#D #S #I #P'"
-        "                     \ ."| awk 'substr($1, 2) == ".s:pane_id." { print $2, $3, $4 }'"
-        "                     \ )
-        "
-        "         let [ session, window, pane ] = split(descriptor_list[0], ' ')
-        "         let pane_descriptor = session.':'.window .'.'.pane
-
-        " I got this code by reading the plugin `vim-tmuxify`:
-        "         https://github.com/jebaum/vim-tmuxify/blob/master/autoload/tmuxify.vim
-        "
-        " In particular the function `s:get_pane_descriptor_from_id()`.
-        " The functions `pane_create()` and `pane_kill()` are also interesting.
-        "
-        " Explanation:
-        " Example of command executed by `systemlist()`:
-        "
-        "                          ┌─ list all the panes, not just the ones in the current window
-        "                          │  ┌─ format the output of the command; here according to the string:
-        "                          │  │          '#D #S #I #P'
-        "                          │  │            │  │  │  │
-        "                          │  │            │  │  │  └─ index of pane
-        "                          │  │            │  │  └─ index of window
-        "                          │  │            │  └─ name of session
-        "                          │  │            └─ unique pane ID (ex: %42)
-        "                          │  │
-        "         tmux list-panes -a -F '#D #S #I #P' | awk 'substr($1, 2) == 456 { print $2, $3, $4 }'
-        "                                                    │                            │
-        "                                                    │                            └─ print:
-        "                                                    │                                 session name
-        "                                                    │                                 window index
-        "                                                    │                                 pane index
-        "                                                    │
-        "                                                    └─ remove the `%` prefix from the 1st field
-        "                                                       and compare the pane ID with `456`;
-        "                                                       `456` is the unique pane ID of the pane
-        "                                                       we're interested in
-        "
-        " Example of output for the command `tmux list-panes -a -F '#D #S #I #P'`:
-        "
-        "         %0 fun 1 1
-        "         %123 study 1 2
-        "         %456 study 1 2
-
-        sil call system('tmux kill-pane -t %'.s:pane_id)
-        unlet! s:file s:pane_id
-    catch
-    endtry
-endfu
+"}}}
+" main "{{{
 
 fu! logevents#main(...) abort
+    " if no argument was provided to `:LogEvents`, close the pane
     if !a:0
         call s:close()
         return
     endif
 
+    "                                                        ┌─ ignore case during comparison
+    "                                                        │
     let events = filter(copy(a:000), 'count(s:events, v:val, 1)')
     if !empty(events)
         let s:file = tempname()
@@ -217,13 +228,17 @@ fu! logevents#main(...) abort
         augroup log_events
             au!
             for event in events
-                sil exe 'autocmd '.event.' * call s:write('.string(event).')'
+                sil exe 'au '.event.' * call s:write('.string(event).')'
             endfor
         augroup END
     endif
 endfu
 
+"}}}
+" write "{{{
+
 fu! s:write(message) abort
     let text_to_append  = strftime('%T').' - '.a:message
     call writefile([text_to_append], s:file, 'a')
 endfu
+"}}}
