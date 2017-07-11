@@ -241,4 +241,5 @@ fu! s:write(message) abort
     let text_to_append  = strftime('%T').' - '.a:message
     call writefile([text_to_append], s:file, 'a')
 endfu
+
 "}}}
