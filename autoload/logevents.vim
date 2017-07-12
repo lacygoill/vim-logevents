@@ -147,6 +147,8 @@ let s:events = [
                \ 'TabEnter',
                \ 'TabLeave',
                \ 'TermChanged',
+               \ 'TermClose',
+               \ 'TermOpen',
                \ 'TermResponse',
                \ 'TextChanged',
                \ 'TextChangedI',
