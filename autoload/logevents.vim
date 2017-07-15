@@ -110,7 +110,9 @@ let s:events = [
                \ ]
 
 fu! logevents#complete(lead, line, _pos) abort
-    return filter(copy(s:events), 'v:val[:strlen(a:lead)-1] ==? a:lead')
+    return empty(a:lead)
+                \ ? s:events
+                \ : filter(copy(s:events), 'v:val[:strlen(a:lead)-1] ==? a:lead')
 endfu
 
 "}}}
