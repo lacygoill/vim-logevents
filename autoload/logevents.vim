@@ -2,7 +2,8 @@
 
 fu! s:close() abort
     try
-        au! log_events | aug! log_events
+        au! log_events
+        aug! log_events
         call s:write('Stopped logging events')
 
         sil call system('tmux kill-pane -t %'.s:pane_id)
