@@ -120,10 +120,15 @@ endfu
 " main "{{{
 
 fu! logevents#main(...) abort
-    " if no argument was provided to `:LogEvents`, close the pane
+    " if no argument was provided to `:LogEvents`, close the pane and quit
     if !a:0
         call s:close()
         return
+    endif
+
+    " if a pane already exists, just close it
+    if exists('s:pane_id')
+        call s:close()
     endif
 
     "                                                        ┌─ ignore case during comparison
