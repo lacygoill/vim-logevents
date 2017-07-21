@@ -26,6 +26,7 @@ endfu
 "         - FuncUndefined
 
 let s:events = [
+               \ 'ALL',
                \ 'BufAdd',
                \ 'BufCreate',
                \ 'BufDelete',
@@ -96,8 +97,6 @@ let s:events = [
                \ 'TabEnter',
                \ 'TabLeave',
                \ 'TermChanged',
-               \ 'TermClose',
-               \ 'TermOpen',
                \ 'TermResponse',
                \ 'TextChanged',
                \ 'TextChangedI',
@@ -109,6 +108,10 @@ let s:events = [
                \ 'WinEnter',
                \ 'WinLeave',
                \ ]
+
+if has('nvim')
+    let s:events += [ 'TermClose', 'TermOpen' ]
+endif
 
 fu! logevents#complete(lead, line, _pos) abort
     return empty(a:lead)
@@ -131,9 +134,14 @@ fu! logevents#main(...) abort
         call s:close()
     endif
 
-    "                                                        ┌─ ignore case during comparison
-    "                                                        │
-    let events = filter(copy(a:000), 'count(s:events, v:val, 1)')
+    if a:1 ==# 'ALL'
+        let events = s:events[1:]
+    else
+        "                                                        ┌─ ignore case during comparison
+        "                                                        │
+        let events = filter(copy(a:000), 'count(s:events, v:val, 1)')
+    endif
+
     if !empty(events)
         let s:file = tempname()
         call s:write('Started logging events')
