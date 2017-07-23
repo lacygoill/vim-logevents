@@ -26,7 +26,7 @@ endfu
 "         - FuncUndefined
 
 let s:events = [
-               \ 'ALL',
+               \ '*',
                \ 'BufAdd',
                \ 'BufCreate',
                \ 'BufDelete',
@@ -134,7 +134,7 @@ fu! logevents#main(...) abort
         call s:close()
     endif
 
-    if a:1 ==# 'ALL'
+    if a:1 ==# '*'
         let events = s:events[1:]
     else
         "                                                        ┌─ ignore case during comparison
@@ -190,6 +190,8 @@ fu! logevents#main(...) abort
             for event in events
                 sil exe 'au '.event.' * call s:write('.string(event).')'
             endfor
+            " close the tmux pane when we quit Vim, if we didn't close it already
+            au VimLeave * call s:close()
         augroup END
     endif
 endfu
