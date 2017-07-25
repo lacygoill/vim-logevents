@@ -134,8 +134,16 @@ fu! logevents#main(...) abort
         call s:close()
     endif
 
+    " :LogEvents *
     if a:1 ==# '*'
         let events = s:events[1:]
+
+    " :LogEvents buf*
+    elseif a:1 =~ '*'
+        let pat    = substitute(a:1, '*', '.*', 'g')
+        let events = filter(s:events, 'v:val =~? pat')
+
+    " :LogEvents BufEnter WinLeave …
     else
         "                                                        ┌─ ignore case during comparison
         "                                                        │
