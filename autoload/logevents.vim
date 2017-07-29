@@ -1,4 +1,4 @@
-" close "{{{
+" close {{{1
 
 fu! s:close() abort
     try
@@ -12,8 +12,7 @@ fu! s:close() abort
     endtry
 endfu
 
-"}}}
-" complete "{{{
+" complete {{{1
 
 " These events are deliberately left out due to side effects:
 "
@@ -119,8 +118,7 @@ fu! logevents#complete(lead, line, _pos) abort
                 \ : filter(copy(s:events), 'v:val[:strlen(a:lead)-1] ==? a:lead')
 endfu
 
-"}}}
-" main "{{{
+" main {{{1
 
 fu! logevents#main(...) abort
     " if no argument was provided to `:LogEvents`, close the pane and quit
@@ -134,21 +132,16 @@ fu! logevents#main(...) abort
         call s:close()
     endif
 
-    " :LogEvents *
-    if a:1 ==# '*'
-        let events = s:events[1:]
+    let regular_args = filter(copy(a:000), 'v:val !~# "*"')
+    let events       = filter(regular_args, "count(s:events, v:val, 1)")
+    "                                                               │
+    "                                                   ignore case ┘
 
-    " :LogEvents buf*
-    elseif a:1 =~ '*'
-        let pat    = substitute(a:1, '*', '.*', 'g')
-        let events = filter(s:events, 'v:val =~? pat')
-
-    " :LogEvents BufEnter WinLeave …
-    else
-        "                                                        ┌─ ignore case during comparison
-        "                                                        │
-        let events = filter(copy(a:000), 'count(s:events, v:val, 1)')
-    endif
+    let glob_args    = filter(copy(a:000), 'v:val =~# "*"')
+    call map(glob_args, "substitute(v:val, '*', '.*', 'g')")
+    for glob in glob_args
+        let events += filter(copy(s:events), 'v:val =~? glob')
+    endfor
 
     if !empty(events)
         let s:file = tempname()
@@ -204,12 +197,9 @@ fu! logevents#main(...) abort
     endif
 endfu
 
-"}}}
-" write "{{{
+" write {{{1
 
 fu! s:write(message) abort
     let text_to_append  = strftime('%T').' - '.a:message
     call writefile([text_to_append], s:file, 'a')
 endfu
-
-"}}}
