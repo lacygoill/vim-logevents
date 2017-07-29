@@ -25,7 +25,6 @@ endfu
 "         - FuncUndefined
 
 let s:events = [
-               \ '*',
                \ 'BufAdd',
                \ 'BufCreate',
                \ 'BufDelete',
@@ -137,7 +136,7 @@ fu! logevents#main(...) abort
     "                                                               │
     "                                                   ignore case ┘
 
-    let glob_args    = filter(copy(a:000), 'v:val =~# "*"')
+    let glob_args = filter(copy(a:000), 'v:val =~# "*"')
     call map(glob_args, "substitute(v:val, '*', '.*', 'g')")
     for glob in glob_args
         let events += filter(copy(s:events), 'v:val =~? glob')
