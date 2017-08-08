@@ -144,7 +144,7 @@ fu! logevents#main(...) abort
 
     if !empty(events)
         let s:file = tempname()
-        call s:write('Started logging events')
+        call s:write('Started logging')
 
         "                     execute a `tail -f` command to let us read the log; ─┐
         "                     since `tail` will never finish,                      │
