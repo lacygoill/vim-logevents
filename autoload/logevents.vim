@@ -113,8 +113,8 @@ endif
 
 fu! logevents#complete(lead, line, _pos) abort
     return empty(a:lead)
-                \ ? s:events
-                \ : filter(copy(s:events), 'v:val[:strlen(a:lead)-1] ==? a:lead')
+        \?     s:events
+        \:     filter(copy(s:events), 'v:val[:strlen(a:lead)-1] ==? a:lead')
 endfu
 
 " main {{{1
