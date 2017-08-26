@@ -1,18 +1,7 @@
-" close {{{1
+" Forked from:
+" https://github.com/lervag/dotvim/blob/master/personal/plugin/log-autocmds.vim
 
-fu! s:close() abort
-    try
-        au! log_events
-        aug! log_events
-        call s:write('Stopped logging events')
-
-        sil call system('tmux kill-pane -t %'.s:pane_id)
-        unlet! s:file s:pane_id
-    catch
-    endtry
-endfu
-
-" complete {{{1
+" Variables {{{1
 
 " These events are deliberately left out due to side effects:
 "
@@ -111,15 +100,25 @@ if has('nvim')
     let s:events += [ 'TermClose', 'TermOpen' ]
 endif
 
-fu! logevents#complete(lead, line, _pos) abort
+fu! s:close() abort "{{{1
+    try
+        au! log_events
+        aug! log_events
+        call s:write('Stopped logging events')
+
+        sil call system('tmux kill-pane -t %'.s:pane_id)
+        unlet! s:file s:pane_id
+    catch
+    endtry
+endfu
+
+fu! logevents#complete(lead, line, _pos) abort "{{{1
     return empty(a:lead)
         \?     s:events
         \:     filter(copy(s:events), 'v:val[:strlen(a:lead)-1] ==? a:lead')
 endfu
 
-" main {{{1
-
-fu! logevents#main(...) abort
+fu! logevents#main(...) abort "{{{1
     if !exists('$TMUX')
         return 'echoerr "Only works inside Tmux."'
     endif
@@ -201,9 +200,7 @@ fu! logevents#main(...) abort
     return ''
 endfu
 
-" write {{{1
-
-fu! s:write(message) abort
+fu! s:write(message) abort "{{{1
     let text_to_append  = strftime('%T').' - '.a:message
     call writefile([text_to_append], s:file, 'a')
 endfu
