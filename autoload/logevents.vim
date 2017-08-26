@@ -120,10 +120,14 @@ endfu
 " main {{{1
 
 fu! logevents#main(...) abort
+    if !exists('$TMUX')
+        return 'echoerr "Only works inside Tmux."'
+    endif
+
     " if no argument was provided to `:LogEvents`, close the pane and quit
     if !a:0
         call s:close()
-        return
+        return ''
     endif
 
     " if a pane already exists, just close it
@@ -194,6 +198,7 @@ fu! logevents#main(...) abort
             au VimLeave * call s:close()
         augroup END
     endif
+    return ''
 endfu
 
 " write {{{1
