@@ -1,3 +1,8 @@
+if exists('g:loaded_logevents')
+    finish
+endif
+let g:loaded_logevents = 1
+
 " Usage:
 "         :LogEvents BufRead BufEnter WinEnter
 "         :LogEvents
