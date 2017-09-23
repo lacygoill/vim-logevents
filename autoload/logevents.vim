@@ -1,109 +1,37 @@
-if exists('g:auto_loaded_logevents')
+if exists('g:autoloaded_logevents')
     finish
 endif
-let g:auto_loaded_logevents = 1
+let g:autoloaded_logevents = 1
 
 " Forked from:
 " https://github.com/lervag/dotvim/blob/master/personal/plugin/log-autocmds.vim
 
 " Variables {{{1
 
+let s:events = getcompletion('', 'event')
+
 " These events are deliberately left out due to side effects:
 "
-"         - SourceCmd
-"         - FileAppendCmd
-"         - FileWriteCmd
-"         - BufWriteCmd
-"         - FileReadCmd
-"         - BufReadCmd
-"         - FuncUndefined
+"         • BufReadCmd
+"         • BufWriteCmd
+"         • FileAppendCmd
+"         • FileReadCmd
+"         • FileWriteCmd
+"         • FuncUndefined
+"         • SourceCmd
 
-let s:events = [
-               \ 'BufAdd',
-               \ 'BufCreate',
-               \ 'BufDelete',
-               \ 'BufEnter',
-               \ 'BufFilePost',
-               \ 'BufFilePre',
-               \ 'BufHidden',
-               \ 'BufLeave',
-               \ 'BufNew',
-               \ 'BufNewFile',
-               \ 'BufRead',
-               \ 'BufReadPost',
-               \ 'BufReadPre',
-               \ 'BufUnload',
-               \ 'BufWinEnter',
-               \ 'BufWinLeave',
-               \ 'BufWipeout',
-               \ 'BufWrite',
-               \ 'BufWritePost',
-               \ 'BufWritePre',
-               \ 'CmdUndefined',
-               \ 'CmdwinEnter',
-               \ 'CmdwinLeave',
-               \ 'ColorScheme',
-               \ 'CompleteDone',
-               \ 'CursorHold',
-               \ 'CursorHoldI',
-               \ 'CursorMoved',
-               \ 'CursorMovedI',
-               \ 'EncodingChanged',
-               \ 'FileAppendPost',
-               \ 'FileAppendPre',
-               \ 'FileChangedRO',
-               \ 'FileChangedShell',
-               \ 'FileChangedShellPost',
-               \ 'FileReadPost',
-               \ 'FileReadPre',
-               \ 'FileType',
-               \ 'FileWritePost',
-               \ 'FileWritePre',
-               \ 'FilterReadPost',
-               \ 'FilterReadPre',
-               \ 'FilterWritePost',
-               \ 'FilterWritePre',
-               \ 'FocusGained',
-               \ 'FocusLost',
-               \ 'GUIEnter',
-               \ 'GUIFailed',
-               \ 'InsertChange',
-               \ 'InsertCharPre',
-               \ 'InsertEnter',
-               \ 'InsertLeave',
-               \ 'MenuPopup',
-               \ 'QuickFixCmdPost',
-               \ 'QuickFixCmdPre',
-               \ 'QuitPre',
-               \ 'RemoteReply',
-               \ 'SessionLoadPost',
-               \ 'ShellCmdPost',
-               \ 'ShellFilterPost',
-               \ 'SourcePre',
-               \ 'SpellFileMissing',
-               \ 'StdinReadPost',
-               \ 'StdinReadPre',
-               \ 'SwapExists',
-               \ 'Syntax',
-               \ 'TabClosed',
-               \ 'TabEnter',
-               \ 'TabLeave',
-               \ 'TermChanged',
-               \ 'TermResponse',
-               \ 'TextChanged',
-               \ 'TextChangedI',
-               \ 'User',
-               \ 'VimEnter',
-               \ 'VimLeave',
-               \ 'VimLeavePre',
-               \ 'VimResized',
-               \ 'WinEnter',
-               \ 'WinLeave',
-               \ ]
+let s:leave_alone = [
+                  \   'BufReadCmd',
+                  \   'BufWriteCmd',
+                  \   'FileAppendCmd',
+                  \   'FileReadCmd',
+                  \   'FileWriteCmd',
+                  \   'FuncUndefined',
+                  \   'SourceCmd',
+                  \ ]
 
-if has('nvim')
-    let s:events += [ 'TermClose', 'TermOpen' ]
-endif
+call filter(s:events, '!count(s:leave_alone, v:val)')
+unlet! s:leave_alone
 
 fu! s:close() abort "{{{1
     try
