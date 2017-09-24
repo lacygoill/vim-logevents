@@ -30,7 +30,7 @@ let s:leave_alone = [
                   \   'SourceCmd',
                   \ ]
 
-call filter(s:events, '!count(s:leave_alone, v:val)')
+call filter(s:events, '!count(s:leave_alone, v:val, 1)')
 unlet! s:leave_alone
 
 fu! s:close() abort "{{{1
