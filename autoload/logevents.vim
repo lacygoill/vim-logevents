@@ -131,10 +131,12 @@ fu! logevents#main(bang, ...) abort "{{{1
         "                                  command with `awk` (hard to escape/protect
         "                                  inside an imbrication of strings);
 
+        let biggest_width = max(map(copy(events), 'strlen(v:val)'))
         augroup log_events
             au!
             for event in events
-                sil exe printf('au %s * call s:write(%d, "%s")', event, a:bang, printf('%-12s', event))
+                sil exe printf('au %s * call s:write(%d, "%s")',
+                             \ event, a:bang, printf('%-*s', biggest_width, event))
             endfor
             " close the tmux pane when we quit Vim, if we didn't close it already
             au VimLeave * call s:close()
@@ -148,7 +150,7 @@ fu! s:write(bang, message) abort "{{{1
     if a:bang
         " append a possible match to the message
         " but if the cwd is at the beginning of the match, remove it
-        let text_to_append .= ' '.matchstr(expand('<amatch>'), '^\V\('.escape(getcwd(), '\').'/\)\?\v\zs.*')
+        let text_to_append .= '  '.matchstr(expand('<amatch>'), '^\V\('.escape(getcwd(), '\').'/\)\?\v\zs.*')
     endif
     call writefile([text_to_append], s:file, 'a')
 endfu
