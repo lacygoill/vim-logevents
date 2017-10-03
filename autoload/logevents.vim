@@ -90,6 +90,7 @@ fu! logevents#main(bang, ...) abort "{{{1
         let dir     = a:bang ? ' -v ' : ' -h '
 
         "                don't give the focus ─┐
+        "                to the new window     │
         "                                      │
         "       make `/tmp` the cwd   ┐        │
         "       of the new window     │        │
