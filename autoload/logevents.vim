@@ -134,7 +134,7 @@ fu! logevents#main(bang, ...) abort "{{{1
         augroup log_events
             au!
             for event in events
-                sil exe printf('au %s * call s:write('.a:bang.', "%s")', event, event)
+                sil exe printf('au %s * call s:write(%d, "%s")', event, a:bang, printf('%-12s', event))
             endfor
             " close the tmux pane when we quit Vim, if we didn't close it already
             au VimLeave * call s:close()
