@@ -52,10 +52,10 @@ fu! logevents#complete(lead, line, _pos) abort "{{{1
 endfu
 
 fu! logevents#main(bang, ...) abort "{{{1
-    " TODO:
-    " remove tmux dependency, use jobs instead
-    " take inspiration from:
-    "         https://github.com/chrisbra/vim-autoread
+    " NOTE:
+    " Do NOT try to remove tmux dependency, and use jobs instead.
+    " The logging must be external to the current Vim's instance, otherwwise
+    " it would pollute what we're trying to study.
     if !exists('$TMUX')
         return 'echoerr "Only works inside Tmux."'
     endif
@@ -86,44 +86,49 @@ fu! logevents#main(bang, ...) abort "{{{1
         let s:file = tempname()
         call s:write(0, 'Started logging')
 
-        "                     execute a `tail -f` command to let us read the log; ─┐
-        "                     since `tail` will never finish,                      │
-        "                     tmux won't close the pane automatically              │
-        "                                                                          │
-        "   the width of the split should take 25% of the terminal ─┐              │
-        "                                                           │              │
-        "              splits vertically instead of horizontally ─┐ │              │
-        "                                                         │ │              │
-        "              don't give the focus to the new window ─┐  │ │              │
-        "                                                      │  │ │              │
-        "            make `/tmp` the working directory ┐       │  │ │              │
-        "            of the new window                 │       │  │ │              │
-        "                                              ├────┐  │  │ ├───┐          │
-        let s:pane_id = systemlist('tmux split-window -c /tmp -d -h -p 25 -PF "#D" tail -f '.s:file)[0][1:]
-        "                                                                  │└────┤                   │  │
-        "                                                                  │     │                   │  │
-        "                                                                  │     │                   │  │
-        " print information about the new session ─────────────────────────┘     │                   │  │
-        " after it has been created:                                             │                   │  │
-        "                                                                        │                   │  │
-        "     let myvar = system('tmux split-window -P tail -f ~/.bashrc')       │                   │  │
-        "     echo myvar  →  study:1.2\n                                         │                   │  │
-        "                                                                        │                   │  │
-        " when using `-P`, by default, it seems that tmux uses the format:       │                   │  │
-        "     ‘#{session_name}:#{window_index}.#{pane_index}’                    │                   │  │
-        "                                                                        │                   │  │
-        " but a different format may be specified with -F                        │                   │  │
-        "                                                                        │                   │  │
-        "                                             unique pane ID (ex: %42)  ─┘                   │  │
-        "                                                                                            │  │
-        "                                         remove the `%` prefix, we just want the ID number ─┘  │
-        "                                                                                               │
-        "                                    get the first line of the output, the second one is empty ─┘
+        let percent = a:bang ? 50     : 25
+        let dir     = a:bang ? ' -v ' : ' -h '
+
+        "                don't give the focus ─┐
+        "                                      │
+        "       make `/tmp` the cwd   ┐        │
+        "       of the new window     │        │
+        "                             ├─────┐  │
+        let cmd  = 'tmux split-window -c /tmp -d '
+
+        "          ┌─ how to split: horizontally vs vertically
+        "          │
+        "          │                ┌ how big should be the split (25% in width or 50% in height)
+        "          │   ┌────────────┤
+        let cmd .= dir.' -p '.percent
+
+        "             ┌─ print information about the new session after it has been created
+        "             │
+        "             │    ┌ unique pane ID (ex: %42)
+        "             │   ┌┤
+        let cmd .= ' -PF "#D"'
+        "              └────┤
+        "                   └ let myvar = system('tmux split-window -P tail -f ~/.bashrc')
+        "                     echo myvar  →  study:1.2\n
         "
-        "                                           we could probably keep the `%`, but in the future,
-        "                                           it could lead to errors if we used it in a complex
-        "                                           command with `awk` (hard to escape/protect
-        "                                           inside an imbrication of strings);
+        "                     when using `-P`, by default, it seems that tmux uses the format:
+        "                         ‘#{session_name}:#{window_index}.#{pane_index}’
+        "
+        "                     but a different format may be specified with -F
+
+        " execute a `tail -f` command to let  us read the log
+        " since `tail` will never finish, tmux won't close the pane automatically
+        let cmd .= ' tail -f '.s:file
+
+        let s:pane_id = systemlist(cmd)[0][1:]
+        "                               │  │
+        "                               │  └─ remove the `%` prefix, we just want the ID number
+        "                               └─ get the first line of the output, the second one is empty
+        "
+        "                                  we could probably keep the `%`, but in the future,
+        "                                  it could lead to errors if we used it in a complex
+        "                                  command with `awk` (hard to escape/protect
+        "                                  inside an imbrication of strings);
 
         augroup log_events
             au!
