@@ -20,18 +20,24 @@ let s:events = getcompletion('', 'event')
 "         • FuncUndefined
 "         • SourceCmd
 
-let s:leave_alone = [
-                  \   'BufReadCmd',
-                  \   'BufWriteCmd',
-                  \   'FileAppendCmd',
-                  \   'FileReadCmd',
-                  \   'FileWriteCmd',
-                  \   'FuncUndefined',
-                  \   'SourceCmd',
-                  \ ]
+let s:dangerous = [
+                \   'BufReadCmd',
+                \   'BufWriteCmd',
+                \   'FileAppendCmd',
+                \   'FileReadCmd',
+                \   'FileWriteCmd',
+                \   'FuncUndefined',
+                \   'SourceCmd',
+                \ ]
 
-call filter(s:events, '!count(s:leave_alone, v:val, 1)')
-unlet! s:leave_alone
+let s:synonyms = [
+               \   'BufCreate',
+               \   'BufRead',
+               \   'BufWrite',
+               \]
+
+call filter(s:events, '!count(s:dangerous + s:synonyms, v:val, 1)')
+unlet! s:dangerous s:synonyms
 
 fu! s:close() abort "{{{1
     try
