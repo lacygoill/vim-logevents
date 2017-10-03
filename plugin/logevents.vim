@@ -14,4 +14,7 @@ let g:loaded_logevents = 1
 " We could simply use `-complete=events` instead.
 " But when we would execute `:Logevents *`, would it filter out the events
 " which may cause an issue (like `SourceCmd`)?
-com! -nargs=* -bar -complete=customlist,logevents#complete LogEvents exe logevents#main(<f-args>)
+
+com! -nargs=* -bang -bar -complete=customlist,logevents#complete LogEvents exe logevents#main(<bang>0, <f-args>)
+"              │
+"              └─ in addition to events, log the matches (expand('<amatch>'))

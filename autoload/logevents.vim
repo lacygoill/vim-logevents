@@ -51,7 +51,11 @@ fu! logevents#complete(lead, line, _pos) abort "{{{1
         \:     filter(copy(s:events), 'v:val[:strlen(a:lead)-1] ==? a:lead')
 endfu
 
-fu! logevents#main(...) abort "{{{1
+fu! logevents#main(bang, ...) abort "{{{1
+    " TODO:
+    " remove tmux dependency, use jobs instead
+    " take inspiration from:
+    "         https://github.com/chrisbra/vim-autoread
     if !exists('$TMUX')
         return 'echoerr "Only works inside Tmux."'
     endif
@@ -124,7 +128,9 @@ fu! logevents#main(...) abort "{{{1
         augroup log_events
             au!
             for event in events
-                sil exe 'au '.event.' * call s:write('.string(event).')'
+                sil exe a:bang
+                     \?     printf('au %s * call s:write("%s : ".expand("<amatch>"))', event, event)
+                     \:     printf('au %s * call s:write("%s")', event, event)
             endfor
             " close the tmux pane when we quit Vim, if we didn't close it already
             au VimLeave * call s:close()
@@ -134,6 +140,6 @@ fu! logevents#main(...) abort "{{{1
 endfu
 
 fu! s:write(message) abort "{{{1
-    let text_to_append  = strftime('%T').' - '.a:message
+    let text_to_append  = strftime('%M:%S').'  '.a:message
     call writefile([text_to_append], s:file, 'a')
 endfu
