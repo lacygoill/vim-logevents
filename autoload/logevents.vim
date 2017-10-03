@@ -37,7 +37,7 @@ fu! s:close() abort "{{{1
     try
         au! log_events
         aug! log_events
-        call s:write('Stopped logging events')
+        call s:write(0, 'Stopped logging events')
 
         sil call system('tmux kill-pane -t %'.s:pane_id)
         unlet! s:file s:pane_id
@@ -84,7 +84,7 @@ fu! logevents#main(bang, ...) abort "{{{1
 
     if !empty(events)
         let s:file = tempname()
-        call s:write('Started logging')
+        call s:write(0, 'Started logging')
 
         "                     execute a `tail -f` command to let us read the log; ─┐
         "                     since `tail` will never finish,                      │
@@ -128,9 +128,7 @@ fu! logevents#main(bang, ...) abort "{{{1
         augroup log_events
             au!
             for event in events
-                sil exe a:bang
-                     \?     printf('au %s * call s:write("%s : ".expand("<amatch>"))', event, event)
-                     \:     printf('au %s * call s:write("%s")', event, event)
+                sil exe printf('au %s * call s:write('.a:bang.', "%s")', event, event)
             endfor
             " close the tmux pane when we quit Vim, if we didn't close it already
             au VimLeave * call s:close()
@@ -139,7 +137,12 @@ fu! logevents#main(bang, ...) abort "{{{1
     return ''
 endfu
 
-fu! s:write(message) abort "{{{1
+fu! s:write(bang, message) abort "{{{1
     let text_to_append  = strftime('%M:%S').'  '.a:message
+    if a:bang
+        " append a possible match to the message
+        " but if the cwd is at the beginning of the match, remove it
+        let text_to_append .= ' '.matchstr(expand('<amatch>'), '^\V\('.escape(getcwd(), '\').'/\)\?\v\zs.*')
+    endif
     call writefile([text_to_append], s:file, 'a')
 endfu
