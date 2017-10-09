@@ -36,7 +36,7 @@ let s:synonyms = [
                \   'BufWrite',
                \]
 
-call filter(s:events, '!count(s:dangerous + s:synonyms, v:val, 1)')
+call filter(s:events, 'index(s:dangerous + s:synonyms, v:val, 1) == -1')
 unlet! s:dangerous s:synonyms
 
 fu! s:close() abort "{{{1
@@ -78,7 +78,7 @@ fu! logevents#main(bang, ...) abort "{{{1
     endif
 
     let regular_args = filter(copy(a:000), 'v:val !~# "*"')
-    let events       = filter(regular_args, "count(s:events, v:val, 1)")
+    let events       = filter(regular_args, "index(s:events, v:val, 1) != -1")
     "                                                               │
     "                                                   ignore case ┘
 
