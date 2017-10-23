@@ -53,8 +53,8 @@ endfu
 
 fu! logevents#complete(lead, line, _pos) abort "{{{1
     return empty(a:lead)
-        \?     s:events
-        \:     filter(copy(s:events), 'v:val[:strlen(a:lead)-1] ==? a:lead')
+    \?         s:events
+    \:         filter(copy(s:events), 'v:val[:strlen(a:lead)-1] ==? a:lead')
 endfu
 
 fu! logevents#main(bang, ...) abort "{{{1
