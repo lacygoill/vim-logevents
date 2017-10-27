@@ -109,7 +109,7 @@ fu! logevents#main(bang, ...) abort "{{{1
         "          │   ┌────────────┤
         let cmd .= dir.' -p '.percent
 
-        "             ┌─ print information about the new session after it has been created
+        "             ┌─ print information about the new window after it has been created
         "             │
         "             │    ┌ unique pane ID (ex: %42)
         "             │   ┌┤
