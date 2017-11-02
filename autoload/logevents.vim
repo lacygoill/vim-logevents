@@ -9,6 +9,18 @@ let g:autoloaded_logevents = 1
 " Variables {{{1
 
 let s:events = getcompletion('', 'event')
+let s:event2extra_info = {
+\                          'CompleteDone'     : 'string(v:completed_item)',
+\                          'FileChangedShell' : 'printf("reason: %s | choice: %s", v:fcs_reason, v:fcs_choice)',
+\                          'InsertCharPre'    : 'v:char',
+\                          'InsertChange'     : '"v:insertmode: ".v:insertmode',
+\                          'InsertEnter'      : '"v:insertmode: ".v:insertmode',
+\                          'OptionSet'        : 'printf("[ %s ] old: %s | new: %s | type: %s",
+\                                                        expand("<amatch>"),
+\                                                        v:option_old, v:option_new, v:option_type)',
+\                          'SwapExists'       : 'printf("choice: %s | command: %s | name: %s",
+\                                                        v:swap_choice, v:swapcommand, v:swapname)',
+\                        }
 
 " These events are deliberately left out due to side effects:
 "
@@ -39,7 +51,8 @@ let s:synonyms = [
 call filter(s:events, 'index(s:dangerous + s:synonyms, v:val, 0, 1) == -1')
 unlet! s:dangerous s:synonyms
 
-fu! s:close() abort "{{{1
+" Functions {{{1
+fu! s:close() abort "{{{2
     try
         au! log_events
         aug! log_events
@@ -51,13 +64,21 @@ fu! s:close() abort "{{{1
     endtry
 endfu
 
-fu! logevents#complete(lead, line, _pos) abort "{{{1
+fu! logevents#complete(lead, line, _pos) abort "{{{2
     return empty(a:lead)
     \?         s:events
     \:         filter(copy(s:events), 'v:val[:strlen(a:lead)-1] ==? a:lead')
 endfu
 
-fu! logevents#main(bang, ...) abort "{{{1
+fu! s:get_extra_info(event) abort "{{{2
+    return has_key(s:event2extra_info, a:event)
+    \?         eval(s:event2extra_info[a:event])
+    \:         matchstr(expand('<amatch>'), '^\V\('.escape(getcwd(), '\').'/\)\?\v\zs.*')
+    "          append a possible match to the message
+    "          but if the cwd is at the beginning of the match, remove it
+endfu
+
+fu! logevents#main(bang, ...) abort "{{{2
     " NOTE:
     " Do NOT try to remove tmux dependency, and use jobs instead.
     " The logging must be external to the current Vim's instance, otherwwise
@@ -87,6 +108,8 @@ fu! logevents#main(bang, ...) abort "{{{1
     for glob in glob_args
         let events += filter(copy(s:events), 'v:val =~? glob')
     endfor
+
+    let events = s:normalize_names(events)
 
     if !empty(events)
         let s:file = tempname()
@@ -151,15 +174,16 @@ fu! logevents#main(bang, ...) abort "{{{1
     return ''
 endfu
 
-fu! s:write(bang, event, msg) abort "{{{1
-    let text_to_append = strftime('%M:%S').'  '.a:msg
+
+fu! s:normalize_names(my_events) abort "{{{2
+    let events_lowercase = map(copy(s:events), 'tolower(v:val)')
+    return map(a:my_events, 's:events[index(events_lowercase, tolower(v:val))]')
+endfu
+
+fu! s:write(bang, event, msg) abort "{{{2
+    let to_append = strftime('%M:%S').'  '.a:msg
     if a:bang
-        let text_to_append .= '  '.( a:event ==? 'InsertCharPre'
-        \?                           v:char
-        \:                           matchstr(expand('<amatch>'), '^\V\('.escape(getcwd(), '\').'/\)\?\v\zs.*')
-        \                          )
-        "                            append a possible match to the message
-        "                            but if the cwd is at the beginning of the match, remove it
+        let to_append .= '  '.s:get_extra_info(a:event)
     endif
-    call writefile([text_to_append], s:file, 'a')
+    call writefile([ to_append ], s:file, 'a')
 endfu
