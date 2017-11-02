@@ -33,20 +33,20 @@ let s:event2extra_info = {
 "         • SourceCmd
 
 let s:dangerous = [
-                \   'BufReadCmd',
-                \   'BufWriteCmd',
-                \   'FileAppendCmd',
-                \   'FileReadCmd',
-                \   'FileWriteCmd',
-                \   'FuncUndefined',
-                \   'SourceCmd',
-                \ ]
+\                   'BufReadCmd',
+\                   'BufWriteCmd',
+\                   'FileAppendCmd',
+\                   'FileReadCmd',
+\                   'FileWriteCmd',
+\                   'FuncUndefined',
+\                   'SourceCmd',
+\                 ]
 
 let s:synonyms = [
-               \   'BufCreate',
-               \   'BufRead',
-               \   'BufWrite',
-               \]
+\                  'BufCreate',
+\                  'BufRead',
+\                  'BufWrite',
+\                ]
 
 call filter(s:events, 'index(s:dangerous + s:synonyms, v:val, 0, 1) == -1')
 unlet! s:dangerous s:synonyms
@@ -173,7 +173,6 @@ fu! logevents#main(bang, ...) abort "{{{2
     endif
     return ''
 endfu
-
 
 fu! s:normalize_names(my_events) abort "{{{2
     let events_lowercase = map(copy(s:events), 'tolower(v:val)')
