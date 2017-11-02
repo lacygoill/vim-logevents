@@ -70,6 +70,15 @@ fu! logevents#complete(lead, line, _pos) abort "{{{2
     \:         filter(copy(s:events), 'v:val[:strlen(a:lead)-1] ==? a:lead')
 endfu
 
+fu! s:get_events_to_log(events) abort "{{{2
+    call map(a:events, 'getcompletion(v:val, "event")')
+    if empty(a:events)
+        return ''
+    endif
+    let events = eval(join(a:events, '+'))
+    return s:normalize_names(events)
+endfu
+
 fu! s:get_extra_info(event) abort "{{{2
     return has_key(s:event2extra_info, a:event)
     \?         eval(s:event2extra_info[a:event])
@@ -98,18 +107,7 @@ fu! logevents#main(bang, ...) abort "{{{2
         call s:close()
     endif
 
-    let regular_args = filter(copy(a:000), 'v:val !~# "*"')
-    let events       = filter(regular_args, "index(s:events, v:val, 0, 1) != -1")
-    "                                                                  │
-    "                                                      ignore case ┘
-
-    let glob_args = filter(copy(a:000), 'v:val =~# "*"')
-    call map(glob_args, "substitute(v:val, '*', '.*', 'g')")
-    for glob in glob_args
-        let events += filter(copy(s:events), 'v:val =~? glob')
-    endfor
-
-    let events = s:normalize_names(events)
+    let events = s:get_events_to_log(copy(a:000))
 
     if !empty(events)
         let s:file = tempname()
