@@ -174,6 +174,13 @@ endfu
 
 fu! s:normalize_names(my_events) abort "{{{2
     let events_lowercase = map(copy(s:events), 'tolower(v:val)')
+    " Make sure that all events are present inside `s:events`.
+    " Otherwise,  if we  try to  log  a dangerous  event, which  is absent  from
+    " `s:events`:
+    "
+    "           index(events_lowercase, tolower(v:val)) == -1
+    "         → s:events[…] = s:events[-1] = 'WinNew'       ✘
+    call filter(a:my_events, 'index(s:events, v:val) != -1')
     return map(a:my_events, 's:events[index(events_lowercase, tolower(v:val))]')
 endfu
 
