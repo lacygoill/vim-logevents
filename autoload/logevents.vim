@@ -78,8 +78,8 @@ fu! s:get_events_to_log(events) abort "{{{2
     let events = eval(join(a:events, '+'))
     " Make sure that all events are present inside `s:events`.
     " Otherwise,  if we  try to  log  a dangerous  event, which  is absent  from
-    " `s:events`, `s:normalize_names()` will wrongly replace its name with the last
-    " (-1) event in `s:events`:
+    " `s:events`, `s:normalize_names()`  will wrongly replace its  name with the
+    " last (-1) event in `s:events`:
     "
     "           index(events_lowercase, tolower(v:val)) == -1
     "         → s:events[…] = s:events[-1] = 'WinNew'       ✘
