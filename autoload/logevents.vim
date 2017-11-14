@@ -83,7 +83,7 @@ fu! s:get_events_to_log(events) abort "{{{2
     "
     "           index(events_lowercase, tolower(v:val)) == -1
     "         → s:events[…] = s:events[-1] = 'WinNew'       ✘
-    call filter(events, 'index(s:events, v:val) != -1')
+    call filter(events, 'index(s:events, v:val) >= 0')
     return s:normalize_names(events)
 endfu
 
