@@ -64,10 +64,10 @@ fu! s:close() abort "{{{2
     endtry
 endfu
 
-fu! logevents#complete(lead, line, _pos) abort "{{{2
-    return empty(a:lead)
+fu! logevents#complete(arglead, line, _pos) abort "{{{2
+    return empty(a:arglead)
     \?         s:events
-    \:         filter(copy(s:events), 'v:val[:strlen(a:lead)-1] ==? a:lead')
+    \:         filter(copy(s:events), 'v:val[:strlen(a:arglead)-1] ==? a:arglead')
 endfu
 
 fu! s:get_events_to_log(events) abort "{{{2
