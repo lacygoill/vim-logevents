@@ -48,7 +48,7 @@ let s:synonyms = [
 \                  'BufWrite',
 \                ]
 
-call filter(s:events, { k,v -> index(s:dangerous + s:synonyms, v, 0, 1) == -1 })
+call filter(s:events, { i,v -> index(s:dangerous + s:synonyms, v, 0, 1) == -1 })
 unlet! s:dangerous s:synonyms
 
 " Functions {{{1
@@ -67,11 +67,11 @@ endfu
 fu! logevents#complete(arglead, _c, _p) abort "{{{2
     return empty(a:arglead)
     \?         s:events
-    \:         filter(copy(s:events), { k,v -> v[:strlen(a:arglead)-1] ==? a:arglead })
+    \:         filter(copy(s:events), { i,v -> v[:strlen(a:arglead)-1] ==? a:arglead })
 endfu
 
 fu! s:get_events_to_log(events) abort "{{{2
-    call map(a:events, { k,v -> getcompletion(v, 'event') })
+    call map(a:events, { i,v -> getcompletion(v, 'event') })
     if empty(a:events)
         return ''
     endif
@@ -83,7 +83,7 @@ fu! s:get_events_to_log(events) abort "{{{2
     "
     "           index(events_lowercase, tolower(v)) == -1
     "         → s:events[…] = s:events[-1] = 'WinNew'       ✘
-    call filter(events, { k,v -> index(s:events, v) >= 0 })
+    call filter(events, { i,v -> index(s:events, v) >= 0 })
     return s:normalize_names(events)
 endfu
 
@@ -166,7 +166,7 @@ fu! logevents#main(bang, ...) abort "{{{2
         "                                  command with `awk` (hard to escape/protect
         "                                  inside an imbrication of strings);
 
-        let biggest_width = max(map(copy(events), { k,v -> strlen(v) }))
+        let biggest_width = max(map(copy(events), { i,v -> strlen(v) }))
         augroup log_events
             au!
             for event in events
@@ -181,8 +181,8 @@ fu! logevents#main(bang, ...) abort "{{{2
 endfu
 
 fu! s:normalize_names(my_events) abort "{{{2
-    let events_lowercase = map(copy(s:events), { k,v -> tolower(v) })
-    return map(a:my_events, { k,v -> s:events[index(events_lowercase, tolower(v))] })
+    let events_lowercase = map(copy(s:events), { i,v -> tolower(v) })
+    return map(a:my_events, { i,v -> s:events[index(events_lowercase, tolower(v))] })
 endfu
 
 fu! s:write(bang, event, msg) abort "{{{2
