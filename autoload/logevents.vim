@@ -61,6 +61,7 @@ fu! s:close() abort "{{{2
         sil call system('tmux kill-pane -t %'.s:pane_id)
         unlet! s:file s:pane_id
     catch
+        call my_lib#catch_error()
     endtry
 endfu
 
