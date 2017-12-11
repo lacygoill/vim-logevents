@@ -61,9 +61,7 @@ fu! s:close() abort "{{{2
 endfu
 
 fu! logevents#complete(arglead, _c, _p) abort "{{{2
-    return empty(a:arglead)
-    \?         s:events
-    \:         filter(copy(s:events), { i,v -> v[:strlen(a:arglead)-1] ==? a:arglead })
+    return filter(copy(s:events), { i,v -> v[:strlen(a:arglead)-1] ==? a:arglead })
 endfu
 
 fu! s:get_events_to_log(events) abort "{{{2
