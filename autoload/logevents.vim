@@ -6,15 +6,18 @@
 let s:events = getcompletion('', 'event')
 let s:event2extra_info = {
 \                          'CompleteDone'     : 'string(v:completed_item)',
-\                          'FileChangedShell' : 'printf("reason: %s | choice: %s", v:fcs_reason, v:fcs_choice)',
+\                          'FileChangedShell' : 'printf("reason: %s\nchoice: %s", v:fcs_reason, v:fcs_choice)',
 \                          'InsertCharPre'    : 'v:char',
 \                          'InsertChange'     : '"v:insertmode: ".v:insertmode',
 \                          'InsertEnter'      : '"v:insertmode: ".v:insertmode',
-\                          'OptionSet'        : 'printf("[ %s ] old: %s | new: %s | type: %s",
+\                          'OptionSet'        : 'printf("[ %s ] old: %s\nnew: %s\ntype: %s",
 \                                                        expand("<amatch>"),
 \                                                        v:option_old, v:option_new, v:option_type)',
-\                          'SwapExists'       : 'printf("choice: %s | command: %s | name: %s",
+\                          'SwapExists'       : 'printf("v:swapchoice: %s\nv:swapcommand: %s\nv:swapname: %s",
 \                                                        v:swap_choice, v:swapcommand, v:swapname)',
+\                          'TextYankPost'     : 'printf("v:event: \noperator: %s\nregcontents: %s\nregname: %s\nregtype: %s",
+\                           v:event.operator, v:event.regcontents, v:event.regname,
+\                           v:event.regtype =~ "\\d" ? "C-v ".v:event.regtype[1:] : v:event.regtype)',
 \                        }
 
 " These events are deliberately left out due to side effects:
@@ -184,5 +187,10 @@ fu! s:write(bang, event, msg) abort "{{{2
     if a:bang
         let to_append .= '  '.s:get_extra_info(a:event)
     endif
-    call writefile([ to_append ], s:file, 'a')
+    let to_append = split(to_append, '\n')
+    if len(to_append) >= 2
+        let indent = repeat(' ', strlen(matchstr(to_append[0], '^\d\+:\d\+\s\+\a\+\s\+')))
+        let to_append = to_append[0:0]  + map(to_append[1:], {i,v -> indent.v})
+    endif
+    call writefile(to_append , s:file, 'a')
 endfu
