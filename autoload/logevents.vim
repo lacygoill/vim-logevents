@@ -71,7 +71,7 @@ fu! logevents#complete(arglead, _c, _p) abort "{{{2
     " which means Vim performs a basic filtering automatically:
     "
     "     • each event must begin with `a:arglead`
-    "     • the comparison is case-insensitive
+    "     • the comparison respects 'ic' and 'scs'
     " }}}
     return join(copy(s:events), "\n")
 endfu
