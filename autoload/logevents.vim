@@ -64,7 +64,16 @@ fu! s:close() abort "{{{2
 endfu
 
 fu! logevents#complete(arglead, _c, _p) abort "{{{2
-    return filter(copy(s:events), { i,v -> v[:strlen(a:arglead)-1] ==? a:arglead })
+    " Why not filtering the events?{{{
+    "
+    " We don't need to, because the command invoking this completion function is
+    " defined with the attribute `-complete=custom`, not `-complete=customlist`,
+    " which means Vim performs a basic filtering automatically:
+    "
+    "     • each event must begin with `a:arglead`
+    "     • the comparison is case-insensitive
+    " }}}
+    return join(copy(s:events), "\n")
 endfu
 
 fu! s:get_events_to_log(events) abort "{{{2

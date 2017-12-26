@@ -13,6 +13,6 @@ let g:loaded_logevents = 1
 "                                  ┌─ We could simply use `-complete=events` instead.
 "                                  │  But it wouldn't filter out dangerous events (SourceCmd, …).
 "                                  │
-com! -nargs=* -bang -bar -complete=customlist,logevents#complete LogEvents exe logevents#main(<bang>0, <f-args>)
+com! -nargs=* -bang -bar -complete=custom,logevents#complete LogEvents exe logevents#main(<bang>0, <f-args>)
 "              │
 "              └─ in addition to events, log the matches (expand('<amatch>'))
