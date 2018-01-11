@@ -1,3 +1,8 @@
+if exists('g:autoloaded_logevents')
+    finish
+endif
+let g:autoloaded_logevents = 1
+
 " Forked from:
 " https://github.com/lervag/dotvim/blob/master/personal/plugin/log-autocmds.vim
 
