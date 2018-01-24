@@ -10,20 +10,20 @@ let g:autoloaded_logevents = 1
 
 let s:events = getcompletion('', 'event')
 let s:event2extra_info = {
-\                          'CompleteDone'     : 'string(v:completed_item)',
-\                          'FileChangedShell' : 'printf("reason: %s\nchoice: %s", v:fcs_reason, v:fcs_choice)',
-\                          'InsertCharPre'    : 'v:char',
-\                          'InsertChange'     : '"v:insertmode: ".v:insertmode',
-\                          'InsertEnter'      : '"v:insertmode: ".v:insertmode',
-\                          'OptionSet'        : 'printf("[ %s ] old: %s\nnew: %s\ntype: %s",
-\                                                        expand("<amatch>"),
-\                                                        v:option_old, v:option_new, v:option_type)',
-\                          'SwapExists'       : 'printf("v:swapchoice: %s\nv:swapcommand: %s\nv:swapname: %s",
-\                                                        v:swap_choice, v:swapcommand, v:swapname)',
-\                          'TextYankPost'     : 'printf("v:event.operator: %s\nv:event.regcontents: %s\nv:event.regname: %s\nv:event.regtype: %s\n",
-\                           v:event.operator, join(map(v:event.regcontents, {i,v -> i != 0 ? "                     ".v : v}), "\n"), v:event.regname,
-\                           v:event.regtype =~ "\\d" ? "C-v ".v:event.regtype[1:] : v:event.regtype)',
-\                        }
+\ 'CompleteDone'     : 'string(v:completed_item)',
+\ 'FileChangedShell' : 'printf("reason: %s\nchoice: %s", v:fcs_reason, v:fcs_choice)',
+\ 'InsertCharPre'    : 'v:char',
+\ 'InsertChange'     : '"v:insertmode: ".v:insertmode',
+\ 'InsertEnter'      : '"v:insertmode: ".v:insertmode',
+\ 'OptionSet'        : 'printf("[ %s ] old: %s\nnew: %s\ntype: %s",
+\                               expand("<amatch>"),
+\                               v:option_old, v:option_new, v:option_type)',
+\ 'SwapExists'       : 'printf("v:swapchoice: %s\nv:swapcommand: %s\nv:swapname: %s",
+\                               v:swap_choice, v:swapcommand, v:swapname)',
+\ 'TextYankPost'     : 'printf("v:event.operator: %s\nv:event.regcontents: %s\nv:event.regname: %s\nv:event.regtype: %s\n",
+\  v:event.operator, join(map(v:event.regcontents, {i,v -> i != 0 ? "                     ".v : v}), "\n"), v:event.regname,
+\  v:event.regtype =~ "\\d" ? "C-v ".v:event.regtype[1:] : v:event.regtype)',
+\ }
 
 " These events are deliberately left out due to side effects:
 "
