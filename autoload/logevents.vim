@@ -51,7 +51,7 @@ let s:synonyms = [
 \                  'BufWrite',
 \                ]
 
-call filter(s:events, { i,v -> index(s:dangerous + s:synonyms, v, 0, 1) == -1 })
+call filter(s:events, { i,v -> index(s:dangerous + s:synonyms, v, 0, 1) ==# -1 })
 unlet! s:dangerous s:synonyms
 
 " Functions {{{1
@@ -92,7 +92,7 @@ fu! s:get_events_to_log(events) abort "{{{2
     " `s:events`, `s:normalize_names()`  will wrongly replace its  name with the
     " last (-1) event in `s:events`:
     "
-    "           index(events_lowercase, tolower(v)) == -1
+    "           index(events_lowercase, tolower(v)) ==# -1
     "         → s:events[…] = s:events[-1] = 'WinNew'       ✘
     call filter(events, { i,v -> index(s:events, v) >= 0 })
     return s:normalize_names(events)
