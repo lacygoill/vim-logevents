@@ -8,7 +8,7 @@ let g:autoloaded_logevents = 1
 
 " Variables {{{1
 
-let s:events = getcompletion('', 'event')
+let s:EVENTS = getcompletion('', 'event')
 let s:event2extra_info = {
 \ 'CompleteDone'     : 'string(v:completed_item)',
 \ 'FileChangedShell' : 'printf("reason: %s\nchoice: %s", v:fcs_reason, v:fcs_choice)',
@@ -35,7 +35,7 @@ let s:event2extra_info = {
 "         • FuncUndefined
 "         • SourceCmd
 
-let s:dangerous = [
+let s:DANGEROUS = [
 \                   'BufReadCmd',
 \                   'BufWriteCmd',
 \                   'FileAppendCmd',
@@ -45,14 +45,14 @@ let s:dangerous = [
 \                   'SourceCmd',
 \                 ]
 
-let s:synonyms = [
+let s:SYNONYMS = [
 \                  'BufCreate',
 \                  'BufRead',
 \                  'BufWrite',
 \                ]
 
-call filter(s:events, { i,v -> index(s:dangerous + s:synonyms, v, 0, 1) ==# -1 })
-unlet! s:dangerous s:synonyms
+call filter(s:EVENTS, { i,v -> index(s:DANGEROUS + s:SYNONYMS, v, 0, 1) ==# -1 })
+unlet! s:DANGEROUS s:SYNONYMS
 
 " Functions {{{1
 fu! s:close() abort "{{{2
@@ -78,7 +78,7 @@ fu! logevents#complete(arglead, _c, _p) abort "{{{2
     "     • each event must begin with `a:arglead`
     "     • the comparison respects 'ic' and 'scs'
     " }}}
-    return join(copy(s:events), "\n")
+    return join(copy(s:EVENTS), "\n")
 endfu
 
 fu! s:get_events_to_log(events) abort "{{{2
@@ -87,14 +87,14 @@ fu! s:get_events_to_log(events) abort "{{{2
         return ''
     endif
     let events = eval(join(a:events, '+'))
-    " Make sure that all events are present inside `s:events`.
+    " Make sure that all events are present inside `s:EVENTS`.
     " Otherwise,  if we  try to  log  a dangerous  event, which  is absent  from
-    " `s:events`, `s:normalize_names()`  will wrongly replace its  name with the
-    " last (-1) event in `s:events`:
+    " `s:EVENTS`, `s:normalize_names()`  will wrongly replace its  name with the
+    " last (-1) event in `s:EVENTS`:
     "
     "           index(events_lowercase, tolower(v)) ==# -1
-    "         → s:events[…] = s:events[-1] = 'WinNew'       ✘
-    call filter(events, { i,v -> index(s:events, v) >= 0 })
+    "         → s:EVENTS[…] = s:EVENTS[-1] = 'WinNew'       ✘
+    call filter(events, { i,v -> index(s:EVENTS, v) >= 0 })
     return s:normalize_names(events)
 endfu
 
@@ -192,8 +192,8 @@ fu! logevents#main(bang, ...) abort "{{{2
 endfu
 
 fu! s:normalize_names(my_events) abort "{{{2
-    let events_lowercase = map(copy(s:events), { i,v -> tolower(v) })
-    return map(a:my_events, { i,v -> s:events[index(events_lowercase, tolower(v))] })
+    let events_lowercase = map(copy(s:EVENTS), { i,v -> tolower(v) })
+    return map(a:my_events, { i,v -> s:EVENTS[index(events_lowercase, tolower(v))] })
 endfu
 
 fu! s:write(bang, event, msg) abort "{{{2
