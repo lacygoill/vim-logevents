@@ -101,7 +101,7 @@ endfu
 fu! s:get_extra_info(event) abort "{{{2
     return has_key(s:event2extra_info, a:event)
        \ ?     eval(s:event2extra_info[a:event])
-       \ :     matchstr(expand('<amatch>'), '^\V\('.escape(getcwd(), '\').'/\)\?\v\zs.*')
+       \ :     matchstr(expand('<amatch>'), '^\C\V\('.escape(getcwd(), '\').'/\)\?\v\zs.*')
     "          append a possible match to the message
     "          but if the cwd is at the beginning of the match, remove it
 endfu
