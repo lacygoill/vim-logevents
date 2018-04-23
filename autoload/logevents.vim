@@ -138,10 +138,10 @@ fu! logevents#main(bang, ...) abort "{{{2
         "                            don't give the focus ─┐
         "                            to the new window     │
         "                                                  │
-        "       make `/tmp` the cwd   ┐                    │
-        "       of the new window     │                    │
+        "           set the cwd       ┐                    │
+        "           of the new window │                    │
         "                             ├─────────────────┐  │
-        let cmd  = 'tmux split-window -c $XDG_RUNTIME_DIR -d '
+        let cmd  = 'tmux split-window -c $XDG_RUNTIME_VIM -d '
 
         "          ┌─ how to split: horizontally vs vertically
         "          │
