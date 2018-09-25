@@ -36,20 +36,20 @@ let s:event2extra_info = {
 "         • SourceCmd
 
 let s:DANGEROUS = [
-\                   'BufReadCmd',
-\                   'BufWriteCmd',
-\                   'FileAppendCmd',
-\                   'FileReadCmd',
-\                   'FileWriteCmd',
-\                   'FuncUndefined',
-\                   'SourceCmd',
-\                 ]
+    \ 'BufReadCmd',
+    \ 'BufWriteCmd',
+    \ 'FileAppendCmd',
+    \ 'FileReadCmd',
+    \ 'FileWriteCmd',
+    \ 'FuncUndefined',
+    \ 'SourceCmd',
+    \ ]
 
 let s:SYNONYMS = [
-\                  'BufCreate',
-\                  'BufRead',
-\                  'BufWrite',
-\                ]
+    \ 'BufCreate',
+    \ 'BufRead',
+    \ 'BufWrite',
+    \ ]
 
 call filter(s:EVENTS, { i,v -> index(s:DANGEROUS + s:SYNONYMS, v, 0, 1) ==# -1 })
 unlet! s:DANGEROUS s:SYNONYMS
