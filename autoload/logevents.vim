@@ -15,7 +15,7 @@ let s:event2extra_info = {
 \ 'InsertCharPre'    : 'v:char',
 \ 'InsertChange'     : '"v:insertmode: ".v:insertmode',
 \ 'InsertEnter'      : '"v:insertmode: ".v:insertmode',
-\ 'OptionSet'        : 'printf("[ %s ] old: %s\nnew: %s\ntype: %s",
+\ 'OptionSet'        : 'printf("[%s] old: %s\nnew: %s\ntype: %s",
 \                               expand("<amatch>"),
 \                               v:option_old, v:option_new, v:option_type)',
 \ 'SwapExists'       : 'printf("v:swapchoice: %s\nv:swapcommand: %s\nv:swapname: %s",
