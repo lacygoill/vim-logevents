@@ -69,15 +69,6 @@ fu! s:close() abort "{{{2
 endfu
 
 fu! logevents#complete(arglead, _cmdline, _pos) abort "{{{2
-    " Why not filtering the events?{{{
-    "
-    " We don't need to, because the command invoking this completion function is
-    " defined with the attribute `-complete=custom`, not `-complete=customlist`,
-    " which means Vim performs a basic filtering automatically:
-    "
-    "     • each event must begin with `a:arglead`
-    "     • the comparison respects 'ic' and 'scs'
-    " }}}
     return join(copy(s:EVENTS), "\n")
 endfu
 
