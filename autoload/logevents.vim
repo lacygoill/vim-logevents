@@ -68,7 +68,7 @@ fu! s:close() abort "{{{2
     endtry
 endfu
 
-fu! logevents#complete(arglead, _c, _p) abort "{{{2
+fu! logevents#complete(arglead, _cmdline, _pos) abort "{{{2
     " Why not filtering the events?{{{
     "
     " We don't need to, because the command invoking this completion function is
