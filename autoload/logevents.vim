@@ -57,6 +57,10 @@ unlet! s:DANGEROUS s:SYNONYMS
 " Functions {{{1
 fu! s:close() abort "{{{2
     try
+        if !exists('#log_events')
+            return
+        endif
+
         au! log_events
         aug! log_events
         call s:write(0, '', 'Stopped logging events')
