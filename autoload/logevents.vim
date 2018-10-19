@@ -171,15 +171,15 @@ fu! logevents#main(bang, ...) abort "{{{2
         " since `tail` will never finish, tmux won't close the pane automatically
         let cmd .= ' tail -f '.s:file
 
-        let s:pane_id = systemlist(cmd)[0][1:]
-        "                               │  │
-        "                               │  └─ remove the `%` prefix, we just want the ID number
-        "                               └─ get the first line of the output, the second one is empty
+        sil let s:pane_id = systemlist(cmd)[0][1:]
+        "                                   │  │
+        "                                   │  └─ remove the `%` prefix, we just want the ID number
+        "                                   └─ get the first line of the output, the second one is empty
         "
-        "                                  we could probably keep the `%`, but in the future,
-        "                                  it could lead to errors if we used it in a complex
-        "                                  command with `awk` (hard to escape/protect
-        "                                  inside an imbrication of strings);
+        "                                      we could probably keep the `%`, but in the future,
+        "                                      it could lead to errors if we used it in a complex
+        "                                      command with `awk` (hard to escape/protect
+        "                                      inside an imbrication of strings);
 
         let biggest_width = max(map(copy(events), {i,v -> strlen(v)}))
         augroup log_events
