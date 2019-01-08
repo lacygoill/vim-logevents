@@ -160,7 +160,8 @@ fu! logevents#main(bang, ...) abort "{{{2
         let cmd .= ' -PF "#D"'
         "              └────┤
         "                   └ let myvar = system('tmux split-window -P tail -f ~/.bashrc')
-        "                     echo myvar  →  study:1.2\n
+        "                     echo myvar
+        "                     study:1.2\n~
         "
         "                     when using `-P`, by default, it seems that tmux uses the format:
         "                         ‘#{session_name}:#{window_index}.#{pane_index}’
