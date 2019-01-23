@@ -27,13 +27,13 @@ let s:event2extra_info = {
 
 " These events are deliberately left out due to side effects:
 "
-"         • BufReadCmd
-"         • BufWriteCmd
-"         • FileAppendCmd
-"         • FileReadCmd
-"         • FileWriteCmd
-"         • FuncUndefined
-"         • SourceCmd
+"         - BufReadCmd
+"         - BufWriteCmd
+"         - FileAppendCmd
+"         - FileReadCmd
+"         - FileWriteCmd
+"         - FuncUndefined
+"         - SourceCmd
 
 let s:DANGEROUS = [
     \ 'BufReadCmd',
