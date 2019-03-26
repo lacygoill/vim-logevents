@@ -65,7 +65,7 @@ fu! s:close() abort "{{{2
         aug! log_events
         call s:write(0, '', 'Stopped logging events')
 
-        sil call system('tmux kill-pane -t %'.s:pane_id)
+        sil call system('tmux kill-pane -t '.s:pane_id)
         unlet! s:file s:pane_id
     catch
         return lg#catch_error()
@@ -172,15 +172,7 @@ fu! logevents#main(bang, ...) abort "{{{2
         " since `tail` will never finish, tmux won't close the pane automatically
         let cmd .= ' tail -f '.s:file
 
-        sil let s:pane_id = systemlist(cmd)[0][1:]
-        "                                   │  │
-        "                                   │  └─ remove the `%` prefix, we just want the ID number
-        "                                   └─ get the first line of the output, the second one is empty
-        "
-        "                                      we could probably keep the `%`, but in the future,
-        "                                      it could lead to errors if we used it in a complex
-        "                                      command with `awk` (hard to escape/protect
-        "                                      inside an imbrication of strings);
+        sil let s:pane_id = system(cmd)[:-2]
 
         let biggest_width = max(map(copy(events), {i,v -> strlen(v)}))
         augroup log_events
