@@ -9,6 +9,15 @@ let g:autoloaded_logevents = 1
 " Variables {{{1
 
 let s:EVENTS = getcompletion('', 'event')
+" TODO: Since 8.1.1542, there are new variables tied to the `OptionSet` event.{{{
+" https://github.com/vim/vim/releases/tag/v8.1.1542
+"
+"     v:option_command
+"     v:option_oldlocal
+"     v:option_oldglobal
+"
+" Log their values; but wait for Nvim to merge the patch.
+"}}}
 let s:event2extra_info = {
 \ 'CompleteDone'     : 'string(v:completed_item)',
 \ 'FileChangedShell' : 'printf("reason: %s\nchoice: %s", v:fcs_reason, v:fcs_choice)',
@@ -27,13 +36,13 @@ let s:event2extra_info = {
 
 " These events are deliberately left out due to side effects:
 "
-"         - BufReadCmd
-"         - BufWriteCmd
-"         - FileAppendCmd
-"         - FileReadCmd
-"         - FileWriteCmd
-"         - FuncUndefined
-"         - SourceCmd
+"    - BufReadCmd
+"    - BufWriteCmd
+"    - FileAppendCmd
+"    - FileReadCmd
+"    - FileWriteCmd
+"    - FuncUndefined
+"    - SourceCmd
 
 let s:DANGEROUS = [
     \ 'BufReadCmd',
