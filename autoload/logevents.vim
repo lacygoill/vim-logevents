@@ -72,10 +72,9 @@ fu! s:close() abort "{{{2
 
         au! log_events
         aug! log_events
-        call s:write(0, '', 'Stopped logging events')
 
         sil call system('tmux kill-pane -t '.s:pane_id)
-        unlet! s:file s:pane_id
+        unlet! s:pane_id
     catch
         return lg#catch_error()
     endtry
@@ -142,46 +141,15 @@ fu! logevents#main(bang, ...) abort "{{{2
     endif
 
     if !empty(events)
-        let s:file = tempname()
-        call s:write(0, '', 'Started logging')
-
         let percent = a:bang ? 50     : 25
         let dir     = a:bang ? ' -v ' : ' -h '
 
-        "                            don't give the focus ─┐
-        "                            to the new window     │
-        "                                                  │
-        "           set the cwd       ┐                    │
-        "           of the new window │                    │
-        "                             ├─────────────────┐  │
-        let cmd  = 'tmux split-window -c $XDG_RUNTIME_VIM -d '
-
-        "          ┌─ how to split: horizontally vs vertically
-        "          │
-        "          │                ┌ how big should be the split (25% in width or 50% in height)
-        "          │   ┌────────────┤
+        let cmd  = 'tmux splitw -c $XDG_RUNTIME_VIM -dI '
         let cmd .= dir.' -p '.percent
-
-        "             ┌─ print information about the new window after it has been created
-        "             │
-        "             │    ┌ unique pane ID (ex: %42)
-        "             │   ┌┤
         let cmd .= ' -PF "#D"'
-        "              └────┤
-        "                   └ let myvar = system('tmux split-window -P tail -f ~/.bashrc')
-        "                     echo myvar
-        "                     study:1.2\n~
-        "
-        "                     when using `-P`, by default, it seems that tmux uses the format:
-        "                         ‘#{session_name}:#{window_index}.#{pane_index}’
-        "
-        "                     but a different format may be specified with -F
-
-        " execute a `tail -f` command to let  us read the log
-        " since `tail` will never finish, tmux won't close the pane automatically
-        let cmd .= ' tail -f '.s:file
-
         sil let s:pane_id = system(cmd)[:-2]
+
+        call system('tmux display -I -t ' . s:pane_id, "Started logging\n")
 
         let biggest_width = max(map(copy(events), {i,v -> strlen(v)}))
         augroup log_events
@@ -212,5 +180,6 @@ fu! s:write(bang, event, msg) abort "{{{2
         let indent = repeat(' ', strlen(matchstr(to_append[0], '^\d\+:\d\+\s\+\a\+\s\+')))
         let to_append = to_append[0:0]  + map(to_append[1:], {i,v -> indent.v})
     endif
-    call writefile(to_append , s:file, 'a')
+    call system('tmux display -I -t ' . s:pane_id, join(to_append, "\n") . "\n")
 endfu
+
