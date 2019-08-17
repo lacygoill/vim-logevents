@@ -8,6 +8,7 @@ let g:autoloaded_logevents = 1
 
 " Variables {{{1
 
+" \ 'CompleteChanged'  : 'string(v:completed_item)',
 let s:EVENTS = getcompletion('', 'event')
 " TODO: Since 8.1.1542, there are new variables tied to the `OptionSet` event.{{{
 " https://github.com/vim/vim/releases/tag/v8.1.1542
@@ -19,19 +20,48 @@ let s:EVENTS = getcompletion('', 'event')
 " Log their values; but wait for Nvim to merge the patch.
 "}}}
 let s:event2extra_info = {
+\ 'CompleteChanged'  : 'printf("v:event.completed_item: %s"
+\                          .."\nv:event.height: %s"
+\                          .."\nv:event.width: %s"
+\                          .."\nv:event.row: %s"
+\                          .."\nv:event.col: %s"
+\                          .."\nv:event.size: %s"
+\                          .."\nv:event.scrollbar: %s\n",
+\                               v:event.completed_item, v:event.height,
+\                               v:event.width,
+\                               v:event.row,
+\                               v:event.col,
+\                               v:event.size,
+\                               v:event.scrollbar)',
 \ 'CompleteDone'     : 'string(v:completed_item)',
-\ 'FileChangedShell' : 'printf("reason: %s\nchoice: %s", v:fcs_reason, v:fcs_choice)',
+\ 'FileChangedShell' : 'printf("reason: %s"
+\                          .."\nchoice: %s",
+\                               v:fcs_reason,
+\                               v:fcs_choice)',
 \ 'InsertCharPre'    : 'v:char',
 \ 'InsertChange'     : '"v:insertmode: ".v:insertmode',
 \ 'InsertEnter'      : '"v:insertmode: ".v:insertmode',
-\ 'OptionSet'        : 'printf("[%s] old: %s\nnew: %s\ntype: %s",
+\ 'OptionSet'        : 'printf("[%s] old: %s"
+\                          .."\nnew: %s"
+\                          .."\ntype: %s",
 \                               expand("<amatch>"),
-\                               v:option_old, v:option_new, v:option_type)',
-\ 'SwapExists'       : 'printf("v:swapchoice: %s\nv:swapcommand: %s\nv:swapname: %s",
-\                               v:swapchoice, v:swapcommand, v:swapname)',
-\ 'TextYankPost'     : 'printf("v:event.operator: %s\nv:event.regcontents: %s\nv:event.regname: %s\nv:event.regtype: %s\n",
-\  v:event.operator, join(map(v:event.regcontents, {i,v -> i !=# 0 ? "                     ".v : v}), "\n"), v:event.regname,
-\  v:event.regtype =~ "\\d" ? "C-v ".v:event.regtype[1:] : v:event.regtype)',
+\                               v:option_old,
+\                               v:option_new,
+\                               v:option_type)',
+\ 'SwapExists'       : 'printf("v:swapchoice: %s"
+\                          .."\nv:swapcommand: %s"
+\                          .."\nv:swapname: %s",
+\                               v:swapchoice,
+\                               v:swapcommand,
+\                               v:swapname)',
+\ 'TextYankPost'     : 'printf("v:event.operator: %s"
+\                          .."\nv:event.regcontents: %s"
+\                          .."\nv:event.regname: %s"
+\                          .."\nv:event.regtype: %s\n",
+\                               v:event.operator,
+\                               join(map(v:event.regcontents, {i,v -> i !=# 0 ? repeat(" ", 21).v : v}), "\n"),
+\                               v:event.regname,
+\                               v:event.regtype =~ "\\d" ? "C-v ".v:event.regtype[1:] : v:event.regtype)',
 \ }
 
 " These events are deliberately left out due to side effects:
