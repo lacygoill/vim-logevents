@@ -90,7 +90,7 @@ let s:SYNONYMS = [
     \ 'BufWrite',
     \ ]
 
-call filter(s:EVENTS, {i,v -> index(s:DANGEROUS + s:SYNONYMS, v, 0, 1) ==# -1})
+call filter(s:EVENTS, {_,v -> index(s:DANGEROUS + s:SYNONYMS, v, 0, 1) ==# -1})
 unlet! s:DANGEROUS s:NOISY s:SYNONYMS
 
 " Functions {{{1
@@ -115,7 +115,7 @@ fu! logevents#complete(arglead, _cmdline, _pos) abort "{{{2
 endfu
 
 fu! s:get_events_to_log(events) abort "{{{2
-    call map(a:events, {i,v -> getcompletion(v, 'event')})
+    call map(a:events, {_,v -> getcompletion(v, 'event')})
     if empty(a:events)
         return ''
     endif
@@ -127,7 +127,7 @@ fu! s:get_events_to_log(events) abort "{{{2
     "
     "           index(events_lowercase, tolower(v)) ==# -1
     "         → s:EVENTS[…] = s:EVENTS[-1] = 'WinNew'       ✘
-    call filter(events, {i,v -> index(s:EVENTS, v) >= 0})
+    call filter(events, {_,v -> index(s:EVENTS, v) >= 0})
     return s:normalize_names(events)
 endfu
 
@@ -167,7 +167,7 @@ fu! logevents#main(bang, ...) abort "{{{2
     " It's not if we're logging everything.
     "}}}
     if a:000 ==# ['*']
-        call filter(events, {i,v -> v !=# 'CmdlineChanged' && v !=# 'CmdlineEnter' && v !=# 'CmdlineLeave'})
+        call filter(events, {_,v -> v !=# 'CmdlineChanged' && v !=# 'CmdlineEnter' && v !=# 'CmdlineLeave'})
     endif
 
     if !empty(events)
@@ -181,7 +181,7 @@ fu! logevents#main(bang, ...) abort "{{{2
 
         call system('tmux display -I -t ' . s:pane_id, "Started logging\n")
 
-        let biggest_width = max(map(copy(events), {i,v -> strlen(v)}))
+        let biggest_width = max(map(copy(events), {_,v -> strlen(v)}))
         augroup log_events
             au!
             for event in events
@@ -196,8 +196,8 @@ fu! logevents#main(bang, ...) abort "{{{2
 endfu
 
 fu! s:normalize_names(my_events) abort "{{{2
-    let events_lowercase = map(copy(s:EVENTS), {i,v -> tolower(v)})
-    return map(a:my_events, {i,v -> s:EVENTS[index(events_lowercase, tolower(v))]})
+    let events_lowercase = map(copy(s:EVENTS), {_,v -> tolower(v)})
+    return map(a:my_events, {_,v -> s:EVENTS[index(events_lowercase, tolower(v))]})
 endfu
 
 fu! s:write(bang, event, msg) abort "{{{2
@@ -208,7 +208,7 @@ fu! s:write(bang, event, msg) abort "{{{2
     let to_append = split(to_append, '\n')
     if len(to_append) >= 2
         let indent = repeat(' ', strlen(matchstr(to_append[0], '^\d\+:\d\+\s\+\a\+\s\+')))
-        let to_append = to_append[0:0]  + map(to_append[1:], {i,v -> indent.v})
+        let to_append = to_append[0:0]  + map(to_append[1:], {_,v -> indent.v})
     endif
     call system('tmux display -I -t ' . s:pane_id, join(to_append, "\n") . "\n")
 endfu
