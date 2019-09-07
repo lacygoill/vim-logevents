@@ -179,7 +179,7 @@ fu! logevents#main(bang, ...) abort "{{{2
         let cmd .= ' -PF "#D"'
         sil let s:pane_id = system(cmd)[:-2]
 
-        call system('tmux display -I -t ' . s:pane_id, "Started logging\n")
+        sil call system('tmux display -I -t ' . s:pane_id, "Started logging\n")
 
         let biggest_width = max(map(copy(events), {_,v -> strlen(v)}))
         augroup log_events
@@ -210,6 +210,6 @@ fu! s:write(bang, event, msg) abort "{{{2
         let indent = repeat(' ', strlen(matchstr(to_append[0], '^\d\+:\d\+\s\+\a\+\s\+')))
         let to_append = to_append[0:0]  + map(to_append[1:], {_,v -> indent.v})
     endif
-    call system('tmux display -I -t ' . s:pane_id, join(to_append, "\n") . "\n")
+    sil call system('tmux display -I -t ' . s:pane_id, join(to_append, "\n") . "\n")
 endfu
 
