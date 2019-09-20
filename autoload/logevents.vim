@@ -39,11 +39,12 @@ let s:event2extra_info = {
 \                               v:fcs_reason,
 \                               v:fcs_choice)',
 \ 'InsertCharPre'    : 'v:char',
-\ 'InsertChange'     : '"v:insertmode: ".v:insertmode',
-\ 'InsertEnter'      : '"v:insertmode: ".v:insertmode',
-\ 'OptionSet'        : 'printf("[%s] old: %s"
-\                          .."\nnew: %s"
-\                          .."\ntype: %s",
+\ 'InsertChange'     : '"v:insertmode: "..v:insertmode',
+\ 'InsertEnter'      : '"v:insertmode: "..v:insertmode',
+\ 'OptionSet'        : 'printf("[%s]"
+\                          .."\n    old: %s"
+\                          .."\n    new: %s"
+\                          .."\n    type: %s",
 \                               expand("<amatch>"),
 \                               v:option_old,
 \                               v:option_new,
@@ -59,9 +60,9 @@ let s:event2extra_info = {
 \                          .."\nv:event.regname: %s"
 \                          .."\nv:event.regtype: %s\n",
 \                               v:event.operator,
-\                               join(map(v:event.regcontents, {i,v -> i !=# 0 ? repeat(" ", 21).v : v}), "\n"),
+\                               join(map(v:event.regcontents, {i,v -> i !=# 0 ? repeat(" ", 21)..v : v}), "\n"),
 \                               v:event.regname,
-\                               v:event.regtype =~ "\\d" ? "C-v ".v:event.regtype[1:] : v:event.regtype)',
+\                               v:event.regtype =~ "\\d" ? "C-v "..v:event.regtype[1:] : v:event.regtype)',
 \ }
 
 " These events are deliberately left out due to side effects:
@@ -90,6 +91,19 @@ let s:SYNONYMS = [
     \ 'BufWrite',
     \ ]
 
+" Some events are fired too frequently.{{{
+"
+" It's fine if we want to log them specifically.
+" It's not if we're logging everything with `:LogEvents *`.
+"}}}
+let s:TOO_FREQUENT = [
+    \ 'CmdlineChanged',
+    \ 'CmdlineEnter',
+    \ 'CmdlineLeave',
+    \ 'SafeState',
+    \ 'SafeStateAgain',
+    \ ]
+
 call filter(s:EVENTS, {_,v -> index(s:DANGEROUS + s:SYNONYMS, v, 0, 1) ==# -1})
 unlet! s:DANGEROUS s:NOISY s:SYNONYMS
 
@@ -103,7 +117,7 @@ fu! s:close() abort "{{{2
         au! log_events
         aug! log_events
 
-        sil call system('tmux kill-pane -t '.s:pane_id)
+        sil call system('tmux kill-pane -t '..s:pane_id)
         unlet! s:pane_id
     catch
         return lg#catch_error()
@@ -134,7 +148,7 @@ endfu
 fu! s:get_extra_info(event) abort "{{{2
     return has_key(s:event2extra_info, a:event)
        \ ?     eval(s:event2extra_info[a:event])
-       \ :     matchstr(expand('<amatch>'), '^\C\V\('.escape(getcwd(), '\').'/\)\?\v\zs.*')
+       \ :     matchstr(expand('<amatch>'), '^\C\V\('..escape(getcwd(), '\')..'/\)\?\v\zs.*')
     "          append a possible match to the message
     "          but if the cwd is at the beginning of the match, remove it
 endfu
@@ -161,13 +175,8 @@ fu! logevents#main(bang, ...) abort "{{{2
 
     let events = s:get_events_to_log(copy(a:000))
 
-    " Some events are fired too frequently.{{{
-    "
-    " It's fine if we want to log them specifically.
-    " It's not if we're logging everything.
-    "}}}
     if a:000 ==# ['*']
-        call filter(events, {_,v -> v !=# 'CmdlineChanged' && v !=# 'CmdlineEnter' && v !=# 'CmdlineLeave'})
+        call filter(events, {_,v -> index(s:TOO_FREQUENT, v) == -1})
     endif
 
     if !empty(events)
@@ -175,11 +184,11 @@ fu! logevents#main(bang, ...) abort "{{{2
         let dir     = a:bang ? ' -v ' : ' -h '
 
         let cmd  = 'tmux splitw -c $XDG_RUNTIME_VIM -dI '
-        let cmd .= dir.' -p '.percent
+        let cmd .= dir..' -p '..percent
         let cmd .= ' -PF "#D"'
         sil let s:pane_id = system(cmd)[:-2]
 
-        sil call system('tmux display -I -t ' . s:pane_id, "Started logging\n")
+        sil call system('tmux display -I -t '..s:pane_id, "Started logging\n")
 
         let biggest_width = max(map(copy(events), {_,v -> strlen(v)}))
         augroup log_events
@@ -201,15 +210,15 @@ fu! s:normalize_names(my_events) abort "{{{2
 endfu
 
 fu! s:write(bang, event, msg) abort "{{{2
-    let to_append = strftime('%M:%S').'  '.a:msg
+    let to_append = strftime('%M:%S')..'  '..a:msg
     if a:bang
-        let to_append .= '  '.s:get_extra_info(a:event)
+        let to_append .= '  '..s:get_extra_info(a:event)
     endif
     let to_append = split(to_append, '\n')
     if len(to_append) >= 2
         let indent = repeat(' ', strlen(matchstr(to_append[0], '^\d\+:\d\+\s\+\a\+\s\+')))
-        let to_append = to_append[0:0]  + map(to_append[1:], {_,v -> indent.v})
+        let to_append = to_append[0:0]  + map(to_append[1:], {_,v -> indent..v})
     endif
-    sil call system('tmux display -I -t ' . s:pane_id, join(to_append, "\n") . "\n")
+    sil call system('tmux display -I -t '..s:pane_id, join(to_append, "\n").."\n")
 endfu
 
