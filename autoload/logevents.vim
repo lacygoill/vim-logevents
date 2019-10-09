@@ -51,7 +51,7 @@ let s:TOO_FREQUENT = [
     \ 'SafeStateAgain',
     \ ]
 
-call filter(s:EVENTS, {_,v -> index(s:DANGEROUS + s:SYNONYMS, v, 0, 1) ==# -1})
+call filter(s:EVENTS, {_,v -> index(s:DANGEROUS + s:SYNONYMS, v, 0, 1) == -1})
 unlet! s:DANGEROUS s:SYNONYMS
 
 fu! s:info_completedone() abort
@@ -178,13 +178,13 @@ fu! s:info_textyankpost() abort
     \ .."\nv:event.regname: %s"
     \ .."\nv:event.regtype: %s\n",
     \      v:event.operator,
-    \      join(map(v:event.regcontents, {i,v -> i !=# 0 ? repeat(' ', 21)..v : v}), "\n"),
+    \      join(map(v:event.regcontents, {i,v -> i != 0 ? repeat(' ', 21)..v : v}), "\n"),
     \      v:event.regname,
     \      v:event.regtype =~ '\d' ? 'C-v '..v:event.regtype[1:] : v:event.regtype,
     \ )
 endfu
 
-let s:event2extra_info = {
+let s:EVENT2EXTRA_INFO = {
 \ 'CompleteChanged'  : function('s:info_completechanged'),
 \ 'CompleteDone'     : function('s:info_completedone'),
 \ 'FileChangedShell' : function('s:info_filechangedshell'),
@@ -298,7 +298,22 @@ endfu
 
 fu! s:get_events_to_log(events) abort "{{{2
     let log_everything = index(a:events, '*') >= 0
-    call map(a:events, {_,v -> getcompletion(v, 'event')})
+    " Why do you append a `$`?{{{
+    "
+    " Without, when we run:
+    "
+    "     :LogEvents safestate
+    "
+    " `SafeState` *and* `SafeStateAgain` are logged.
+    " It's due to `getcompletion()`:
+    "
+    "     :echo getcompletion('safestate', 'event')
+    "     ['SafeState', 'SafeStateAgain']~
+    "
+    " It's as if `getcompletion()` appends a `*` at the end.
+    " To prevent that, we append `$`.
+    "}}}
+    call map(a:events, {_,v -> getcompletion(v[-1:-1] =~# '\l' ? v..'$' : v, 'event')})
     if empty(a:events) | return '' | endif
     let events = eval(join(a:events, '+'))
     " Make sure that all events are present inside `s:EVENTS`.
@@ -306,7 +321,7 @@ fu! s:get_events_to_log(events) abort "{{{2
     " `s:EVENTS`, `s:normalize_names()`  will wrongly replace its  name with the
     " last (-1) event in `s:EVENTS`:
     "
-    "       index(events_lowercase, tolower(v)) ==# -1
+    "       index(events_lowercase, tolower(v)) == -1
     "     → s:EVENTS[...] = s:EVENTS[-1] = 'WinNew'       ✘
     call filter(events, {_,v -> index(s:EVENTS, v) >= 0})
     let events = s:normalize_names(events)
@@ -320,8 +335,8 @@ fu! s:get_extra_info(event, verbose) abort "{{{2
     if a:verbose == 1
         return s:get_amatch()
     elseif a:verbose == 2
-        return has_key(s:event2extra_info, a:event)
-           \ ?     s:event2extra_info[a:event]()
+        return has_key(s:EVENT2EXTRA_INFO, a:event)
+           \ ?     s:EVENT2EXTRA_INFO[a:event]()
            \ :     s:get_amatch()
     endif
 endfu
@@ -335,8 +350,8 @@ fu! s:open_tmux_pane(verbose) abort "{{{2
     let layout = a:verbose ? ' -v ' : ' -h '
     let percent = a:verbose ? 50 : 25
     let cmd = 'tmux splitw -c '..s:DIR..' -dI '
-    let cmd .= layout..' -p '..percent
-    let cmd .= ' -PF "#D"'
+    let cmd ..= layout..' -p '..percent
+    let cmd ..= ' -PF "#D"'
     sil let s:pane_id = system(cmd)[:-2]
 endfu
 
@@ -363,7 +378,7 @@ endfu
 fu! s:write(verbose, event, msg) abort "{{{2
     let to_append = strftime('%M:%S')..'  '..a:msg
     if a:verbose
-        let to_append .= '  '..s:get_extra_info(a:event, a:verbose)
+        let to_append ..= '  '..s:get_extra_info(a:event, a:verbose)
     endif
     let to_append = split(to_append, '\n')
     if len(to_append) >= 2
