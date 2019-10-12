@@ -8,7 +8,7 @@ let g:autoloaded_logevents = 1
 
 " Variables {{{1
 
-let s:DIR = getenv('XDG_RUNTIME_VIM') == v:null ? '/tmp' : $XDG_RUNTIME_VIM
+const s:DIR = getenv('XDG_RUNTIME_VIM') == v:null ? '/tmp' : $XDG_RUNTIME_VIM
 
 let s:EVENTS = getcompletion('', 'event')
 
@@ -22,39 +22,40 @@ let s:EVENTS = getcompletion('', 'event')
 "    - FuncUndefined
 "    - SourceCmd
 
-let s:DANGEROUS = [
-    \ 'BufReadCmd',
-    \ 'BufWriteCmd',
-    \ 'FileAppendCmd',
-    \ 'FileReadCmd',
-    \ 'FileWriteCmd',
-    \ 'FuncUndefined',
-    \ 'SourceCmd',
-    \ ]
+const s:DANGEROUS =<< trim END
+    BufReadCmd
+    BufWriteCmd
+    FileAppendCmd
+    FileReadCmd
+    FileWriteCmd
+    FuncUndefined
+    SourceCmd
+END
 
-let s:SYNONYMS = [
-    \ 'BufCreate',
-    \ 'BufRead',
-    \ 'BufWrite',
-    \ ]
+const s:SYNONYMS =<< trim END
+    BufCreate
+    BufRead
+    BufWrite
+END
 
 " Some events are fired too frequently.{{{
 "
 " It's fine if we want to log them specifically.
 " It's not if we're logging everything with `:LogEvents *`.
 "}}}
-let s:TOO_FREQUENT = [
-    \ 'CmdlineChanged',
-    \ 'CmdlineEnter',
-    \ 'CmdlineLeave',
-    \ 'SafeState',
-    \ 'SafeStateAgain',
-    \ ]
+const s:TOO_FREQUENT =<< trim END
+    CmdlineChanged
+    CmdlineEnter
+    CmdlineLeave
+    SafeState
+    SafeStateAgain
+END
 
 call filter(s:EVENTS, {_,v -> index(s:DANGEROUS + s:SYNONYMS, v, 0, 1) == -1})
+lockvar s:EVENTS
 unlet! s:DANGEROUS s:SYNONYMS
 
-fu! s:info_completedone() abort
+fu s:info_completedone() abort
     return printf(
     \     'v:completed_item.word: %s'
     \ .."\nv:completed_item.menu: %s"
@@ -76,7 +77,7 @@ endfu
 " When you press `C-n`  while your cursor is on the last entry  of the menu, you
 " leave the menu; in that case, `v:event.completed_item` is empty.
 "}}}
-fu! s:info_completechanged() abort
+fu s:info_completechanged() abort
     return printf(
     \     'v:event.completed_item.word: %s'
     \ .."\nv:event.completed_item.menu: %s"
@@ -105,7 +106,7 @@ fu! s:info_completechanged() abort
     \ )
 endfu
 
-fu! s:info_filechangedshell() abort
+fu s:info_filechangedshell() abort
     return printf(
     \     'reason: %s'
     \ .."\nchoice: %s",
@@ -114,15 +115,15 @@ fu! s:info_filechangedshell() abort
     \ )
 endfu
 
-fu! s:info_insertcharpre() abort
+fu s:info_insertcharpre() abort
     return v:char
 endfu
 
-fu! s:info_insertmode() abort
+fu s:info_insertmode() abort
     return 'v:insertmode: '..v:insertmode
 endfu
 
-fu! s:info_optionset() abort
+fu s:info_optionset() abort
     " Nvim hasn't  merged 8.1.1542  yet (even though  `v:command`, `v:oldlocal`,
     " `v:oldglobal` are documented).
     if has('nvim')
@@ -156,7 +157,7 @@ fu! s:info_optionset() abort
     endif
 endfu
 
-fu! s:info_swapexists() abort
+fu s:info_swapexists() abort
     return printf(
     \     'v:swapchoice: %s'
     \ .."\nv:swapcommand: %s"
@@ -167,11 +168,11 @@ fu! s:info_swapexists() abort
     \ )
 endfu
 
-fu! s:info_termresponse() abort
+fu s:info_termresponse() abort
     return printf('v:termresponse: %s', v:termresponse)
 endfu
 
-fu! s:info_textyankpost() abort
+fu s:info_textyankpost() abort
     return printf(
     \     'v:event.operator: %s'
     \ .."\nv:event.regcontents: %s"
@@ -198,7 +199,7 @@ let s:EVENT2EXTRA_INFO = {
 \ }
 
 " Functions {{{1
-fu! logevents#main(...) abort "{{{2
+fu logevents#main(...) abort "{{{2
     " Do *not* try to remove tmux dependency, and use jobs instead.{{{
     "
     " The logging must be external to the current Vim's instance, otherwwise
@@ -229,13 +230,13 @@ fu! logevents#main(...) abort "{{{2
     call s:log(events, verbose)
 endfu
 
-fu! s:error(msg) abort "{{{2
+fu s:error(msg) abort "{{{2
     echohl ErrorMsg
     echom 'LogEvents: '..a:msg
     echohl NONE
 endfu
 
-fu! s:print_usage() abort "{{{2
+fu s:print_usage() abort "{{{2
     let usage =<< trim END
     Usage: LogEvents [OPTION] EVENT...
       or:  LogEvents OPTION
@@ -249,7 +250,7 @@ fu! s:print_usage() abort "{{{2
     echo join(usage, "\n")
 endfu
 
-fu! s:clear(args) abort "{{{2
+fu s:clear(args) abort "{{{2
     if join(a:args) isnot# '-clear'
         return s:error('-clear must be used alone')
     endif
@@ -261,7 +262,7 @@ fu! s:clear(args) abort "{{{2
     call call('logevents#main', s:last_args)
 endfu
 
-fu! s:stop(args) abort "{{{2
+fu s:stop(args) abort "{{{2
     if join(a:args) isnot# '-stop'
         return s:error('-stop must be used alone')
     endif
@@ -272,7 +273,7 @@ fu! s:stop(args) abort "{{{2
     endif
 endfu
 
-fu! s:close() abort "{{{2
+fu s:close() abort "{{{2
     try
         if !exists('#log_events') | return | endif
 
@@ -286,7 +287,7 @@ fu! s:close() abort "{{{2
     endtry
 endfu
 
-fu! s:get_verbose(args) abort "{{{2
+fu s:get_verbose(args) abort "{{{2
     let verbose = 0
     if index(a:args, '-v') >= 0
         let verbose = 1
@@ -296,7 +297,7 @@ fu! s:get_verbose(args) abort "{{{2
     return verbose
 endfu
 
-fu! s:get_events_to_log(events) abort "{{{2
+fu s:get_events_to_log(events) abort "{{{2
     let log_everything = index(a:events, '*') >= 0
     " Why do you append a `$`?{{{
     "
@@ -331,7 +332,7 @@ fu! s:get_events_to_log(events) abort "{{{2
     return events
 endfu
 
-fu! s:get_extra_info(event, verbose) abort "{{{2
+fu s:get_extra_info(event, verbose) abort "{{{2
     if a:verbose == 1
         return s:get_amatch()
     elseif a:verbose == 2
@@ -341,12 +342,12 @@ fu! s:get_extra_info(event, verbose) abort "{{{2
     endif
 endfu
 
-fu! s:get_amatch() abort "{{{2
+fu s:get_amatch() abort "{{{2
     " get a possible match, but if the cwd is at the beginning of the match, remove it
     return matchstr(expand('<amatch>'), '^\C\V\('..escape(getcwd(), '\')..'/\)\=\m\zs.*')
 endfu
 
-fu! s:open_tmux_pane(verbose) abort "{{{2
+fu s:open_tmux_pane(verbose) abort "{{{2
     let layout = a:verbose ? ' -v ' : ' -h '
     let percent = a:verbose ? 50 : 25
     let cmd = 'tmux splitw -c '..s:DIR..' -dI '
@@ -355,12 +356,12 @@ fu! s:open_tmux_pane(verbose) abort "{{{2
     sil let s:pane_id = system(cmd)[:-2]
 endfu
 
-fu! s:normalize_names(my_events) abort "{{{2
+fu s:normalize_names(my_events) abort "{{{2
     let events_lowercase = map(copy(s:EVENTS), {_,v -> tolower(v)})
     return map(a:my_events, {_,v -> s:EVENTS[index(events_lowercase, tolower(v))]})
 endfu
 
-fu! s:log(events, verbose) abort "{{{2
+fu s:log(events, verbose) abort "{{{2
     sil call system('tmux display -I -t '..s:pane_id, "Started logging\n")
 
     let biggest_width = max(map(copy(a:events), {_,v -> strlen(v)}))
@@ -375,7 +376,7 @@ fu! s:log(events, verbose) abort "{{{2
     augroup END
 endfu
 
-fu! s:write(verbose, event, msg) abort "{{{2
+fu s:write(verbose, event, msg) abort "{{{2
     let to_append = strftime('%M:%S')..'  '..a:msg
     if a:verbose
         let to_append ..= '  '..s:get_extra_info(a:event, a:verbose)
@@ -388,9 +389,14 @@ fu! s:write(verbose, event, msg) abort "{{{2
     sil call system('tmux display -I -t '..s:pane_id, join(to_append, "\n").."\n")
 endfu
 
-fu! logevents#complete(arglead, _cmdline, _pos) abort "{{{2
+fu logevents#complete(arglead, _cmdline, _pos) abort "{{{2
     if a:arglead[0] is# '-'
-        let options = ['-clear', '-stop', '-v', '-vv']
+        let options =<< trim END
+            -clear
+            -stop
+            -v
+            -vv
+        END
         return join(options, "\n")
     endif
     return join(copy(s:EVENTS), "\n")
