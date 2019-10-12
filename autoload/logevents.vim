@@ -386,7 +386,14 @@ fu s:write(verbose, event, msg) abort "{{{2
         let indent = repeat(' ', strlen(matchstr(to_append[0], '^\d\+:\d\+\s\+\a\+\s\+')))
         let to_append = to_append[0:0]  + map(to_append[1:], {_,v -> indent..v})
     endif
-    sil call system('tmux display -I -t '..s:pane_id, join(to_append, "\n").."\n")
+    try
+        sil call system('tmux display -I -t '..s:pane_id, join(to_append, "\n").."\n")
+    catch /^Vim\%((\a\+)\)\=:E12:/
+        " E12  is  raised if  you  log  `OptionSet`,  `'modeline'` is  set,  and
+        " `'modelines'` is greater than 0
+    catch
+        return lg#catch_error()
+    endtry
 endfu
 
 fu logevents#complete(arglead, _cmdline, _pos) abort "{{{2
