@@ -389,8 +389,23 @@ fu s:write(verbose, event, msg) abort "{{{2
     try
         sil call system('tmux display -I -t '..s:pane_id, join(to_append, "\n").."\n")
     catch /^Vim\%((\a\+)\)\=:E12:/
-        " E12  is  raised if  you  log  `OptionSet`,  `'modeline'` is  set,  and
-        " `'modelines'` is greater than 0
+        " `E12` is raised if you log `OptionSet`, `'modeline'` is set, and `'modelines'` is greater than 0.{{{
+        "
+        " You can't run a shell command from an autocmd listening to `OptionSet`
+        " if the latter event has been triggered by a modeline.
+        "
+        " MWE:
+        "
+        "     $ vim -Nu NONE +'au OptionSet * call system("")'
+        "     :h
+        "
+        " When `:h` is run, the bottom modeline is processed.
+        " It sets options, which fires `OptionSet`, which invokes `system()`.
+        "
+        " However,  when  a  modeline  is  processed,  Vim  temporarily  forbids
+        " external shell commands from being run, for security reasons.
+        " So, `system()` raises `E12`.
+        "}}}
     catch
         return lg#catch_error()
     endtry
