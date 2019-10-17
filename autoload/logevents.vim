@@ -23,19 +23,19 @@ let s:EVENTS = getcompletion('', 'event')
 "    - SourceCmd
 
 const s:DANGEROUS =<< trim END
-    BufReadCmd
-    BufWriteCmd
-    FileAppendCmd
-    FileReadCmd
-    FileWriteCmd
-    FuncUndefined
-    SourceCmd
+BufReadCmd
+BufWriteCmd
+FileAppendCmd
+FileReadCmd
+FileWriteCmd
+FuncUndefined
+SourceCmd
 END
 
 const s:SYNONYMS =<< trim END
-    BufCreate
-    BufRead
-    BufWrite
+BufCreate
+BufRead
+BufWrite
 END
 
 " Some events are fired too frequently.{{{
@@ -44,11 +44,11 @@ END
 " It's not if we're logging everything with `:LogEvents *`.
 "}}}
 const s:TOO_FREQUENT =<< trim END
-    CmdlineChanged
-    CmdlineEnter
-    CmdlineLeave
-    SafeState
-    SafeStateAgain
+CmdlineChanged
+CmdlineEnter
+CmdlineLeave
+SafeState
+SafeStateAgain
 END
 
 call filter(s:EVENTS, {_,v -> index(s:DANGEROUS + s:SYNONYMS, v, 0, 1) == -1})
@@ -411,13 +411,13 @@ fu s:write(verbose, event, msg) abort "{{{2
     endtry
 endfu
 
-fu logevents#complete(arglead, _cmdline, _pos) abort "{{{2
+fu logevents#complete(arglead, _l, _p) abort "{{{2
     if a:arglead[0] is# '-'
         let options =<< trim END
-            -clear
-            -stop
-            -v
-            -vv
+        -clear
+        -stop
+        -v
+        -vv
         END
         return join(options, "\n")
     endif
