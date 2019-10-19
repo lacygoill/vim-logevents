@@ -63,12 +63,12 @@ fu s:info_completedone() abort
     \ .."\nv:completed_item.info: %s"
     \ .."\nv:completed_item.kind: %s"
     \ .."\nv:completed_item.abbr: %s",
-    \      v:completed_item.word,
-    \      v:completed_item.menu,
-    \      v:completed_item.user_data,
-    \      v:completed_item.info,
-    \      v:completed_item.kind,
-    \      v:completed_item.abbr,
+    \      get(v:completed_item, 'word', ''),
+    \      get(v:completed_item, 'menu', ''),
+    \      get(v:completed_item, 'user_data', ''),
+    \      get(v:completed_item, 'info', ''),
+    \      get(v:completed_item, 'kind', ''),
+    \      get(v:completed_item, 'abbr', ''),
     \ )
 endfu
 
