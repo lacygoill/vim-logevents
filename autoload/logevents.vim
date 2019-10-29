@@ -317,17 +317,36 @@ fu s:get_events_to_log(events) abort "{{{2
     call map(a:events, {_,v -> getcompletion(v[-1:-1] =~# '\l' ? v..'$' : v, 'event')})
     if empty(a:events) | return '' | endif
     let events = eval(join(a:events, '+'))
-    " Make sure that all events are present inside `s:EVENTS`.
-    " Otherwise,  if we  try to  log  a dangerous  event, which  is absent  from
-    " `s:EVENTS`, `s:normalize_names()`  will wrongly replace its  name with the
-    " last (-1) event in `s:EVENTS`:
+    " Make sure that all events are present inside `s:EVENTS`.{{{
     "
-    "       index(events_lowercase, tolower(v)) == -1
-    "     → s:EVENTS[...] = s:EVENTS[-1] = 'WinNew'       ✘
-    call filter(events, {_,v -> index(s:EVENTS, v) >= 0})
-    let events = s:normalize_names(events)
+    " Otherwise,  if we  try to  log  a dangerous  event, which  is absent  from
+    " `s:EVENTS`, the next  `map()` will wrongly replace its name  with the last
+    " event in `s:EVENTS`, which is `WinNew` atm:
+    "
+    "       index(s:EVENTS, v, 0, 1) == -1
+    "     ⇒ s:EVENTS[-1]
+    "     ⇒ 'WinNew'
+    "}}}
+    " Why do you always pass the fourth argument `{ic}` to `index()`?{{{
+    "
+    " To ignore the case.
+    " It matters because `getcompletion()` may give spurious results.
+    " For example, in Nvim:
+    "
+    "     :echo getcompletion('cmdl', 'event')
+    "     ['CmdLineChanged', 'CmdLineEnter', 'CmdLineLeave']~
+    "          ^                 ^               ^
+    "          ✘                 ✘               ✘
+    "
+    " Notice how the `L` in `CmdLine` is capitalized.
+    " It should not  be: it's not capitalized in the help, nor  in the output of
+    " Vim's `getcompletion()`.
+    "}}}
+    call filter(events, {_,v -> index(s:EVENTS, v, 0, 1) >= 0})
+    " normalize names
+    call map(events, {_,v -> s:EVENTS[index(s:EVENTS, v, 0, 1)]})
     if log_everything
-        call filter(events, {_,v -> index(s:TOO_FREQUENT, v) == -1})
+        call filter(events, {_,v -> index(s:TOO_FREQUENT, v, 0, 1) == -1})
     endif
     return events
 endfu
@@ -357,8 +376,7 @@ fu s:open_tmux_pane(verbose) abort "{{{2
 endfu
 
 fu s:normalize_names(my_events) abort "{{{2
-    let events_lowercase = map(copy(s:EVENTS), {_,v -> tolower(v)})
-    return map(a:my_events, {_,v -> s:EVENTS[index(events_lowercase, tolower(v))]})
+    return map(a:my_events, {_,v -> s:EVENTS[index(s:EVENTS, v, 0, 1)]})
 endfu
 
 fu s:log(events, verbose) abort "{{{2
