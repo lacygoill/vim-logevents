@@ -327,21 +327,6 @@ fu s:get_events_to_log(events) abort "{{{2
     "     ⇒ s:EVENTS[-1]
     "     ⇒ 'WinNew'
     "}}}
-    " Why do you always pass the fourth argument `{ic}` to `index()`?{{{
-    "
-    " To ignore the case.
-    " It matters because `getcompletion()` may give spurious results.
-    " For example, in Nvim:
-    "
-    "     :echo getcompletion('cmdl', 'event')
-    "     ['CmdLineChanged', 'CmdLineEnter', 'CmdLineLeave']~
-    "          ^                 ^               ^
-    "          ✘                 ✘               ✘
-    "
-    " Notice how the `L` in `CmdLine` is capitalized.
-    " It should not  be: it's not capitalized in the help, nor  in the output of
-    " Vim's `getcompletion()`.
-    "}}}
     call filter(events, {_,v -> index(s:EVENTS, v, 0, 1) >= 0})
     " normalize names
     call map(events, {_,v -> s:EVENTS[index(s:EVENTS, v, 0, 1)]})
