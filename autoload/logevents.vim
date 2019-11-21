@@ -52,7 +52,7 @@ const s:TOO_FREQUENT =<< trim END
 END
 
 call filter(s:EVENTS, {_,v -> index(s:DANGEROUS + s:SYNONYMS, v, 0, 1) == -1})
-lockvar s:EVENTS
+lockvar! s:EVENTS
 unlet! s:DANGEROUS s:SYNONYMS
 
 fu s:info_completedone() abort
