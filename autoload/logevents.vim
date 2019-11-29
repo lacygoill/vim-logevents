@@ -128,7 +128,7 @@ fu s:info_optionset() abort
     " `v:oldglobal` are documented).
     if has('nvim')
         return printf(
-        \     '[%s]'
+        \     "'%s'"
         \ .."\n    old: %s"
         \ .."\n    new: %s"
         \ .."\n    type: %s",
@@ -139,7 +139,7 @@ fu s:info_optionset() abort
         \ )
     else
         return printf(
-        \     '[%s]'
+        \     "'%s'"
         \ .."\n    old: %s"
         \ .."\n    new: %s"
         \ .."\n    type: %s"
