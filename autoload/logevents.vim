@@ -354,7 +354,7 @@ endfu
 fu s:open_tmux_pane(verbose) abort "{{{2
     let layout = a:verbose ? ' -v ' : ' -h '
     let percent = a:verbose ? 50 : 25
-    let cmd = 'tmux splitw -c '..s:DIR..' -dI '
+    let cmd = 'tmux splitw -c '..shellescape(s:DIR)..' -dI '
     let cmd ..= layout..' -p '..percent
     let cmd ..= ' -PF "#D"'
     sil let s:pane_id = system(cmd)[:-2]
