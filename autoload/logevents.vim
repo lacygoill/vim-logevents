@@ -386,7 +386,7 @@ fu s:write(verbose, event, msg) abort "{{{2
     endif
     let to_append = split(to_append, '\n')
     if len(to_append) >= 2
-        let indent = repeat(' ', strlen(matchstr(to_append[0], '^\d\+:\d\+\s\+\a\+\s\+')))
+        let indent = repeat(' ', len(matchstr(to_append[0], '^\d\+:\d\+\s\+\a\+\s\+')))
         let to_append = to_append[0:0]  + map(to_append[1:], {_,v -> indent..v})
     endif
     try
