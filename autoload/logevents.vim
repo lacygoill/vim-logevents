@@ -283,7 +283,7 @@ fu s:close() abort "{{{2
         sil call system('tmux kill-pane -t '..s:pane_id)
         unlet! s:pane_id
     catch
-        return lg#catch_error()
+        return lg#catch()
     endtry
 endfu
 
@@ -410,7 +410,7 @@ fu s:write(verbose, event, msg) abort "{{{2
         " So, `system()` raises `E12`.
         "}}}
     catch
-        return lg#catch_error()
+        return lg#catch()
     endtry
 endfu
 
