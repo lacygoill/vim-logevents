@@ -340,15 +340,29 @@ fu s:get_extra_info(event, verbose) abort "{{{2
     if a:verbose == 1
         return s:get_amatch()
     elseif a:verbose == 2
-        return has_key(s:EVENT2EXTRA_INFO, a:event)
+        let amatch = has_key(s:EVENT2EXTRA_INFO, a:event)
            \ ?     s:EVENT2EXTRA_INFO[a:event]()
            \ :     s:get_amatch()
+        let info = ''
+        if amatch != ''
+            let info = 'amatch: '..amatch
+        endif
+        let afile = expand('<afile>')
+        if afile != ''
+            if afile is# amatch
+                let info ..= "\nafile: \""
+            else
+                let info ..= "\nafile: "..afile
+            endif
+        endif
+        return info
     endif
 endfu
 
 fu s:get_amatch() abort "{{{2
-    " get a possible match, but if the cwd is at the beginning of the match, remove it
-    return matchstr(expand('<amatch>'), '^\C\V\('..escape(getcwd(), '\')..'/\)\=\m\zs.*')
+    " Get `expand('<amatch>')`.
+    " But if the cwd is at the beginning of the match, remove it.
+    return matchstr(expand('<amatch>'), '^\C\%(\V'..escape(getcwd(), '\')..'\m/\)\=\m\zs.*')
 endfu
 
 fu s:open_tmux_pane(verbose) abort "{{{2
