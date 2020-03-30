@@ -338,11 +338,11 @@ endfu
 
 fu s:get_extra_info(event, verbose) abort "{{{2
     if a:verbose == 1
-        return s:get_amatch()
+        return expand('<amatch>')
     elseif a:verbose == 2
         let amatch = has_key(s:EVENT2EXTRA_INFO, a:event)
            \ ?     s:EVENT2EXTRA_INFO[a:event]()
-           \ :     s:get_amatch()
+           \ :     expand('<amatch>')
         let info = ''
         if amatch != ''
             let info = 'amatch: '..amatch
@@ -357,12 +357,6 @@ fu s:get_extra_info(event, verbose) abort "{{{2
         endif
         return info
     endif
-endfu
-
-fu s:get_amatch() abort "{{{2
-    " Get `expand('<amatch>')`.
-    " But if the cwd is at the beginning of the match, remove it.
-    return matchstr(expand('<amatch>'), '^\C\%(\V'..escape(getcwd(), '\')..'\m/\)\=\m\zs.*')
 endfu
 
 fu s:open_tmux_pane(verbose) abort "{{{2
