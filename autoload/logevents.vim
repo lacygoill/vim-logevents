@@ -128,25 +128,21 @@ fu s:info_optionset() abort
     " `v:oldglobal` are documented).
     if has('nvim')
         return printf(
-        \     "'%s'"
-        \ .."\n    old: %s"
+        \     '    old: %s'
         \ .."\n    new: %s"
         \ .."\n    type: %s",
-        \      expand('<amatch>'),
         \      v:option_old,
         \      v:option_new,
         \      v:option_type,
         \ )
     else
         return printf(
-        \     "'%s'"
-        \ .."\n    old: %s"
+        \     '    old: %s'
         \ .."\n    new: %s"
         \ .."\n    type: %s"
         \ .."\n    command: %s"
         \ .."\n    oldlocal: %s"
         \ .."\n    oldglobal: %s",
-        \      expand('<amatch>'),
         \      v:option_old,
         \      v:option_new,
         \      v:option_type,
@@ -340,12 +336,10 @@ fu s:get_extra_info(event, verbose) abort "{{{2
     if a:verbose == 1
         return expand('<amatch>')
     elseif a:verbose == 2
-        let amatch = has_key(s:EVENT2EXTRA_INFO, a:event)
-           \ ?     s:EVENT2EXTRA_INFO[a:event]()
-           \ :     expand('<amatch>')
         let info = ''
+        let amatch = expand('<amatch>')
         if amatch != ''
-            let info = 'amatch: '..amatch
+            let info ..= 'amatch: '..amatch
         endif
         let afile = expand('<afile>')
         if afile != ''
@@ -354,6 +348,9 @@ fu s:get_extra_info(event, verbose) abort "{{{2
             else
                 let info ..= "\nafile: "..afile
             endif
+        endif
+        if has_key(s:EVENT2EXTRA_INFO, a:event)
+            let info ..= "\n"..s:EVENT2EXTRA_INFO[a:event]()
         endif
         return info
     endif
@@ -394,7 +391,7 @@ fu s:write(verbose, event, msg) abort "{{{2
     endif
     let to_append = split(to_append, '\n')
     if len(to_append) >= 2
-        let indent = repeat(' ', len(matchstr(to_append[0], '^\d\+:\d\+\s\+\a\+\s\+')))
+        let indent = repeat(' ', strlen(matchstr(to_append[0], '^\d\+:\d\+\s\+\a\+\s\+')))
         let to_append = to_append[0:0]  + map(to_append[1:], {_,v -> indent..v})
     endif
     try
