@@ -203,7 +203,7 @@ fu logevents#main(...) abort "{{{2
     "}}}
     if !exists('$TMUX') | return s:error('only works inside Tmux') | endif
     if !a:0 | call s:print_usage() | return | endif
-    let idx_unknown_option = match(a:000, '-\%(\%(clear\|stop\|v\|vv\)\%(\s\|$\)\)\@!\S*')
+    let idx_unknown_option = match(a:000, '-\%(\%(clear\|stop\|v\|vv\|vvv\)\%(\s\|$\)\)\@!\S*')
     if idx_unknown_option != -1
         return s:error('unknown OPTION: '..a:000[idx_unknown_option])
     endif
@@ -221,7 +221,7 @@ fu logevents#main(...) abort "{{{2
     " if a pane already exists, just close it
     if exists('s:pane_id') | call s:close() | endif
 
-    let verbose = s:get_verbose(a:000)
+    let verbose = s:verbosity_level(a:000)
     call s:open_tmux_pane(verbose)
     call s:log(events, verbose)
 endfu
@@ -241,7 +241,8 @@ fu s:print_usage() abort "{{{2
               -clear                   clear log
               -stop                    stop logging
               -v                       increase verbosity
-              -vv                      increase verbosity even more
+              -vv                      increase verbosity even more (<amatch>, <afile>, v:char, v:event, ...)
+              -vvv                     max verbosity (<abuf>)
     END
     echo join(usage, "\n")
 endfu
@@ -283,12 +284,14 @@ fu s:close() abort "{{{2
     endtry
 endfu
 
-fu s:get_verbose(args) abort "{{{2
+fu s:verbosity_level(args) abort "{{{2
     let verbose = 0
     if index(a:args, '-v') >= 0
         let verbose = 1
     elseif index(a:args, '-vv') >= 0
         let verbose = 2
+    elseif index(a:args, '-vvv') >= 0
+        let verbose = 3
     endif
     return verbose
 endfu
@@ -333,27 +336,34 @@ fu s:get_events_to_log(events) abort "{{{2
 endfu
 
 fu s:get_extra_info(event, verbose) abort "{{{2
-    if a:verbose == 1
-        return expand('<amatch>')
-    elseif a:verbose == 2
-        let info = ''
-        let amatch = expand('<amatch>')
-        if amatch != ''
-            let info ..= 'amatch: '..amatch
-        endif
-        let afile = expand('<afile>')
-        if afile != ''
-            if afile is# amatch
-                let info ..= "\nafile: \""
-            else
-                let info ..= "\nafile: "..afile
-            endif
-        endif
-        if has_key(s:EVENT2EXTRA_INFO, a:event)
-            let info ..= "\n"..s:EVENT2EXTRA_INFO[a:event]()
-        endif
-        return info
+    if a:verbose == 1 | return expand('<amatch>') | endif
+
+    let info = ''
+    let amatch = expand('<amatch>')
+    if amatch != ''
+        let info ..= 'amatch: '..amatch
     endif
+
+    let afile = expand('<afile>')
+    if afile != ''
+        if afile is# amatch
+            let info ..= "\nafile: \""
+        else
+            let info ..= "\nafile: "..afile
+        endif
+    endif
+
+    if a:verbose == 3
+        let abuf = expand('<abuf>')
+        if abuf != ''
+            let info ..= (info == '' ? '' : "\n")..'abuf: '..abuf
+        endif
+    endif
+
+    if has_key(s:EVENT2EXTRA_INFO, a:event)
+        let info ..= "\n"..s:EVENT2EXTRA_INFO[a:event]()
+    endif
+    return info
 endfu
 
 fu s:open_tmux_pane(verbose) abort "{{{2
