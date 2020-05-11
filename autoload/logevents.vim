@@ -383,8 +383,7 @@ fu s:log(events, verbose) abort "{{{2
     sil call system('tmux display -I -t '..s:pane_id, "Started logging\n")
 
     let biggest_width = max(map(copy(a:events), {_,v -> strlen(v)}))
-    augroup log_events
-        au!
+    augroup log_events | au!
         for event in a:events
             sil exe printf('au %s * call s:write(%d, "%s", "%s")',
                          \ event, a:verbose, event, printf('%-*s', biggest_width, event))
