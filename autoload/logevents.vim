@@ -3,9 +3,6 @@ if exists('g:autoloaded_logevents')
 endif
 let g:autoloaded_logevents = 1
 
-" Forked from:
-" https://github.com/lervag/dotvim/blob/master/personal/plugin/log-autocmds.vim
-
 " Variables {{{1
 
 const s:DIR = getenv('XDG_RUNTIME_VIM') == v:null ? '/tmp' : $XDG_RUNTIME_VIM
@@ -201,7 +198,7 @@ fu logevents#main(...) abort "{{{2
     " The logging must be external to the current Vim's instance, otherwwise
     " it would pollute what we're trying to study.
     "}}}
-    if !exists('$TMUX') | return s:error('only works inside Tmux') | endif
+    if !exists('$TMUX') | return s:error('only works inside tmux') | endif
     if !a:0 | call s:print_usage() | return | endif
     let idx_unknown_option = match(a:000, '-\%(\%(clear\|stop\|v\|vv\|vvv\)\%(\s\|$\)\)\@!\S*')
     if idx_unknown_option != -1
