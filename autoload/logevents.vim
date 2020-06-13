@@ -121,19 +121,7 @@ fu s:info_insertmode() abort
 endfu
 
 fu s:info_optionset() abort
-    " Nvim hasn't  merged 8.1.1542  yet (even though  `v:command`, `v:oldlocal`,
-    " `v:oldglobal` are documented).
-    if has('nvim')
-        return printf(
-        \     '    old: %s'
-        \ .."\n    new: %s"
-        \ .."\n    type: %s",
-        \      v:option_old,
-        \      v:option_new,
-        \      v:option_type,
-        \ )
-    else
-        return printf(
+    return printf(
         \     '    old: %s'
         \ .."\n    new: %s"
         \ .."\n    type: %s"
@@ -147,7 +135,6 @@ fu s:info_optionset() abort
         \      v:option_oldlocal,
         \      v:option_oldglobal,
         \ )
-    endif
 endfu
 
 fu s:info_swapexists() abort
@@ -370,10 +357,6 @@ fu s:open_tmux_pane(verbose) abort "{{{2
     let cmd ..= layout..' -p '..percent
     let cmd ..= ' -PF "#D"'
     sil let s:pane_id = system(cmd)[:-2]
-endfu
-
-fu s:normalize_names(my_events) abort "{{{2
-    return map(a:my_events, {_,v -> s:EVENTS[index(s:EVENTS, v, 0, 1)]})
 endfu
 
 fu s:log(events, verbose) abort "{{{2
