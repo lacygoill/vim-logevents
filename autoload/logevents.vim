@@ -3,6 +3,8 @@ if exists('g:autoloaded_logevents')
 endif
 let g:autoloaded_logevents = 1
 
+import Catch from 'lg.vim'
+
 " Variables {{{1
 
 const s:DIR = getenv('XDG_RUNTIME_VIM') == v:null ? '/tmp' : $XDG_RUNTIME_VIM
@@ -48,25 +50,25 @@ const s:TOO_FREQUENT =<< trim END
     SafeStateAgain
 END
 
-call filter(s:EVENTS, {_,v -> index(s:DANGEROUS + s:SYNONYMS, v, 0, 1) == -1})
+call filter(s:EVENTS, {_, v -> index(s:DANGEROUS + s:SYNONYMS, v, 0, 1) == -1})
 lockvar! s:EVENTS
 unlet! s:DANGEROUS s:SYNONYMS
 
 fu s:info_completedone() abort
     return printf(
-    \     'v:completed_item.word: %s'
-    \ .."\nv:completed_item.menu: %s"
-    \ .."\nv:completed_item.user_data: %s"
-    \ .."\nv:completed_item.info: %s"
-    \ .."\nv:completed_item.kind: %s"
-    \ .."\nv:completed_item.abbr: %s",
-    \      get(v:completed_item, 'word', ''),
-    \      get(v:completed_item, 'menu', ''),
-    \      get(v:completed_item, 'user_data', ''),
-    \      get(v:completed_item, 'info', ''),
-    \      get(v:completed_item, 'kind', ''),
-    \      get(v:completed_item, 'abbr', ''),
-    \ )
+        \      'v:completed_item.word: %s'
+        \ .. "\nv:completed_item.menu: %s"
+        \ .. "\nv:completed_item.user_data: %s"
+        \ .. "\nv:completed_item.info: %s"
+        \ .. "\nv:completed_item.kind: %s"
+        \ .. "\nv:completed_item.abbr: %s",
+        \   get(v:completed_item, 'word', ''),
+        \   get(v:completed_item, 'menu', ''),
+        \   get(v:completed_item, 'user_data', ''),
+        \   get(v:completed_item, 'info', ''),
+        \   get(v:completed_item, 'kind', ''),
+        \   get(v:completed_item, 'abbr', ''),
+        \ )
 endfu
 
 " Why `get()`?{{{
@@ -76,40 +78,40 @@ endfu
 "}}}
 fu s:info_completechanged() abort
     return printf(
-    \     'v:event.completed_item.word: %s'
-    \ .."\nv:event.completed_item.menu: %s"
-    \ .."\nv:event.completed_item.user_data: %s"
-    \ .."\nv:event.completed_item.info: %s"
-    \ .."\nv:event.completed_item.kind: %s"
-    \ .."\nv:event.completed_item.abbr: %s"
-    \ .."\nv:event.height: %s"
-    \ .."\nv:event.width: %s"
-    \ .."\nv:event.row: %s"
-    \ .."\nv:event.col: %s"
-    \ .."\nv:event.size: %s"
-    \ .."\nv:event.scrollbar: %s\n",
-    \      get(v:event.completed_item, 'word', ''),
-    \      get(v:event.completed_item, 'menu', ''),
-    \      get(v:event.completed_item, 'user_data', ''),
-    \      get(v:event.completed_item, 'info', ''),
-    \      get(v:event.completed_item, 'kind', ''),
-    \      get(v:event.completed_item, 'abbr', ''),
-    \      v:event.height,
-    \      v:event.width,
-    \      v:event.row,
-    \      v:event.col,
-    \      v:event.size,
-    \      v:event.scrollbar,
-    \ )
+        \      'v:event.completed_item.word: %s'
+        \ .. "\nv:event.completed_item.menu: %s"
+        \ .. "\nv:event.completed_item.user_data: %s"
+        \ .. "\nv:event.completed_item.info: %s"
+        \ .. "\nv:event.completed_item.kind: %s"
+        \ .. "\nv:event.completed_item.abbr: %s"
+        \ .. "\nv:event.height: %s"
+        \ .. "\nv:event.width: %s"
+        \ .. "\nv:event.row: %s"
+        \ .. "\nv:event.col: %s"
+        \ .. "\nv:event.size: %s"
+        \ .. "\nv:event.scrollbar: %s\n",
+        \   get(v:event.completed_item, 'word', ''),
+        \   get(v:event.completed_item, 'menu', ''),
+        \   get(v:event.completed_item, 'user_data', ''),
+        \   get(v:event.completed_item, 'info', ''),
+        \   get(v:event.completed_item, 'kind', ''),
+        \   get(v:event.completed_item, 'abbr', ''),
+        \       v:event.height,
+        \       v:event.width,
+        \       v:event.row,
+        \       v:event.col,
+        \       v:event.size,
+        \       v:event.scrollbar,
+        \ )
 endfu
 
 fu s:info_filechangedshell() abort
     return printf(
-    \     'reason: %s'
-    \ .."\nchoice: %s",
-    \      v:fcs_reason,
-    \      v:fcs_choice,
-    \ )
+        \      'reason: %s'
+        \ .. "\nchoice: %s",
+        \       v:fcs_reason,
+        \       v:fcs_choice,
+        \ )
 endfu
 
 fu s:info_insertcharpre() abort
@@ -117,35 +119,35 @@ fu s:info_insertcharpre() abort
 endfu
 
 fu s:info_insertmode() abort
-    return 'v:insertmode: '..v:insertmode
+    return 'v:insertmode: ' .. v:insertmode
 endfu
 
 fu s:info_optionset() abort
     return printf(
-        \     '    old: %s'
-        \ .."\n    new: %s"
-        \ .."\n    type: %s"
-        \ .."\n    command: %s"
-        \ .."\n    oldlocal: %s"
-        \ .."\n    oldglobal: %s",
-        \      v:option_old,
-        \      v:option_new,
-        \      v:option_type,
-        \      v:option_command,
-        \      v:option_oldlocal,
-        \      v:option_oldglobal,
+        \      '    old: %s'
+        \ .. "\n    new: %s"
+        \ .. "\n    type: %s"
+        \ .. "\n    command: %s"
+        \ .. "\n    oldlocal: %s"
+        \ .. "\n    oldglobal: %s",
+        \       v:option_old,
+        \       v:option_new,
+        \       v:option_type,
+        \       v:option_command,
+        \       v:option_oldlocal,
+        \       v:option_oldglobal,
         \ )
 endfu
 
 fu s:info_swapexists() abort
     return printf(
-    \     'v:swapchoice: %s'
-    \ .."\nv:swapcommand: %s"
-    \ .."\nv:swapname: %s",
-    \      v:swapchoice,
-    \      v:swapcommand,
-    \      v:swapname,
-    \ )
+        \      'v:swapchoice: %s'
+        \ .. "\nv:swapcommand: %s"
+        \ .. "\nv:swapname: %s",
+        \       v:swapchoice,
+        \       v:swapcommand,
+        \       v:swapname,
+        \ )
 endfu
 
 fu s:info_termresponse() abort
@@ -154,29 +156,29 @@ endfu
 
 fu s:info_textyankpost() abort
     return printf(
-    \     'v:event.operator: %s'
-    \ .."\nv:event.regcontents: %s"
-    \ .."\nv:event.regname: %s"
-    \ .."\nv:event.regtype: %s\n",
-    \      v:event.operator,
-    \      join(map(v:event.regcontents, {i,v -> i != 0 ? repeat(' ', 21)..v : v}), "\n"),
-    \      v:event.regname,
-    \      v:event.regtype =~ '\d' ? 'C-v '..v:event.regtype[1:] : v:event.regtype,
-    \ )
+        \     'v:event.operator: %s'
+        \ .. "\nv:event.regcontents: %s"
+        \ .. "\nv:event.regname: %s"
+        \ .. "\nv:event.regtype: %s\n",
+        \      v:event.operator,
+        \      map(v:event.regcontents, {i, v -> i != 0 ? repeat(' ', 21) .. v : v})->join("\n"),
+        \      v:event.regname,
+        \      v:event.regtype =~ '\d' ? 'C-v ' .. v:event.regtype[1:] : v:event.regtype,
+        \ )
 endfu
 
 let s:EVENT2EXTRA_INFO = {
-\ 'CompleteChanged'  : function('s:info_completechanged'),
-\ 'CompleteDone'     : function('s:info_completedone'),
-\ 'FileChangedShell' : function('s:info_filechangedshell'),
-\ 'InsertCharPre'    : function('s:info_insertcharpre'),
-\ 'InsertChange'     : function('s:info_insertmode'),
-\ 'InsertEnter'      : function('s:info_insertmode'),
-\ 'OptionSet'        : function('s:info_optionset'),
-\ 'SwapExists'       : function('s:info_swapexists'),
-\ 'TermResponse'     : function('s:info_termresponse'),
-\ 'TextYankPost'     : function('s:info_textyankpost'),
-\ }
+    \ 'CompleteChanged': function('s:info_completechanged'),
+    \ 'CompleteDone': function('s:info_completedone'),
+    \ 'FileChangedShell': function('s:info_filechangedshell'),
+    \ 'InsertCharPre': function('s:info_insertcharpre'),
+    \ 'InsertChange': function('s:info_insertmode'),
+    \ 'InsertEnter': function('s:info_insertmode'),
+    \ 'OptionSet': function('s:info_optionset'),
+    \ 'SwapExists': function('s:info_swapexists'),
+    \ 'TermResponse': function('s:info_termresponse'),
+    \ 'TextYankPost': function('s:info_textyankpost'),
+    \ }
 
 " Functions {{{1
 fu logevents#main(...) abort "{{{2
@@ -189,7 +191,7 @@ fu logevents#main(...) abort "{{{2
     if !a:0 | call s:print_usage() | return | endif
     let idx_unknown_option = match(a:000, '-\%(\%(clear\|stop\|v\|vv\|vvv\)\%(\s\|$\)\)\@!\S*')
     if idx_unknown_option != -1
-        return s:error('unknown OPTION: '..a:000[idx_unknown_option])
+        return s:error('unknown OPTION: ' .. a:000[idx_unknown_option])
     endif
 
     if index(a:000, '-clear') >= 0
@@ -198,7 +200,7 @@ fu logevents#main(...) abort "{{{2
         return s:stop(a:000)
     endif
 
-    let events = s:get_events_to_log(copy(a:000))
+    let events = copy(a:000)->s:get_events_to_log()
     if empty(events) | return s:error('missing EVENT operand') | endif
 
     let s:last_args = a:000
@@ -212,7 +214,7 @@ endfu
 
 fu s:error(msg) abort "{{{2
     echohl ErrorMsg
-    echom 'LogEvents: '..a:msg
+    echom 'LogEvents: ' .. a:msg
     echohl NONE
 endfu
 
@@ -261,10 +263,10 @@ fu s:close() abort "{{{2
         au! log_events
         aug! log_events
 
-        sil call system('tmux kill-pane -t '..s:pane_id)
+        sil call system('tmux kill-pane -t ' .. s:pane_id)
         unlet! s:pane_id
     catch
-        return lg#catch()
+        return s:Catch()
     endtry
 endfu
 
@@ -297,9 +299,9 @@ fu s:get_events_to_log(events) abort "{{{2
     " It's as if `getcompletion()` appends a `*` at the end.
     " To prevent that, we append `$`.
     "}}}
-    call map(a:events, {_,v -> getcompletion(v[-1:-1] =~# '\l' ? v..'$' : v, 'event')})
+    call map(a:events, {_, v -> getcompletion(v[-1:-1] =~# '\l' ? v .. '$' : v, 'event')})
     if empty(a:events) | return '' | endif
-    let events = eval(join(a:events, '+'))
+    let events = join(a:events, '+')->eval()
     " Make sure that all events are present inside `s:EVENTS`.{{{
     "
     " Otherwise,  if we  try to  log  a dangerous  event, which  is absent  from
@@ -310,11 +312,11 @@ fu s:get_events_to_log(events) abort "{{{2
     "     ⇒ s:EVENTS[-1]
     "     ⇒ 'WinNew'
     "}}}
-    call filter(events, {_,v -> index(s:EVENTS, v, 0, 1) >= 0})
+    call filter(events, {_, v -> index(s:EVENTS, v, 0, 1) >= 0})
     " normalize names
-    call map(events, {_,v -> s:EVENTS[index(s:EVENTS, v, 0, 1)]})
+    call map(events, {_, v -> s:EVENTS[index(s:EVENTS, v, 0, 1)]})
     if log_everything
-        call filter(events, {_,v -> index(s:TOO_FREQUENT, v, 0, 1) == -1})
+        call filter(events, {_, v -> index(s:TOO_FREQUENT, v, 0, 1) == -1})
     endif
     return events
 endfu
@@ -325,7 +327,7 @@ fu s:get_extra_info(event, verbose) abort "{{{2
     let info = ''
     let amatch = expand('<amatch>')
     if amatch != ''
-        let info ..= 'amatch: '..amatch
+        let info ..= 'amatch: ' .. amatch
     endif
 
     let afile = expand('<afile>')
@@ -333,19 +335,19 @@ fu s:get_extra_info(event, verbose) abort "{{{2
         if afile is# amatch
             let info ..= "\nafile: \""
         else
-            let info ..= "\nafile: "..afile
+            let info ..= "\nafile: " .. afile
         endif
     endif
 
     if a:verbose == 3
         let abuf = expand('<abuf>')
         if abuf != ''
-            let info ..= (info == '' ? '' : "\n")..'abuf: '..abuf
+            let info ..= (info == '' ? '' : "\n") .. 'abuf: ' .. abuf
         endif
     endif
 
     if has_key(s:EVENT2EXTRA_INFO, a:event)
-        let info ..= "\n"..s:EVENT2EXTRA_INFO[a:event]()
+        let info ..= "\n" .. s:EVENT2EXTRA_INFO[a:event]()
     endif
     return info
 endfu
@@ -353,20 +355,20 @@ endfu
 fu s:open_tmux_pane(verbose) abort "{{{2
     let layout = a:verbose ? ' -v ' : ' -h '
     let percent = a:verbose ? 50 : 25
-    let cmd = 'tmux splitw -c '..shellescape(s:DIR)..' -dI '
-    let cmd ..= layout..' -p '..percent
+    let cmd = 'tmux splitw -c ' .. shellescape(s:DIR) .. ' -dI '
+    let cmd ..= layout .. ' -p ' .. percent
     let cmd ..= ' -PF "#D"'
-    sil let s:pane_id = system(cmd)[:-2]
+    sil let s:pane_id = system(cmd)->trim("\n", 2)
 endfu
 
 fu s:log(events, verbose) abort "{{{2
-    sil call system('tmux display -I -t '..s:pane_id, "Started logging\n")
+    sil call system('tmux display -I -t ' .. s:pane_id, "Started logging\n")
 
-    let biggest_width = max(map(copy(a:events), {_,v -> strlen(v)}))
+    let biggest_width = copy(a:events)->map({_, v -> strlen(v)})->max()
     augroup log_events | au!
         for event in a:events
             sil exe printf('au %s * call s:write(%d, "%s", "%s")',
-                         \ event, a:verbose, event, printf('%-*s', biggest_width, event))
+                \ event, a:verbose, event, printf('%-*s', biggest_width, event))
         endfor
         " close the tmux pane when we quit Vim, if we didn't close it already
         au VimLeave * call s:close()
@@ -374,17 +376,17 @@ fu s:log(events, verbose) abort "{{{2
 endfu
 
 fu s:write(verbose, event, msg) abort "{{{2
-    let to_append = strftime('%M:%S')..'  '..a:msg
+    let to_append = strftime('%M:%S') .. '  ' .. a:msg
     if a:verbose
-        let to_append ..= '  '..s:get_extra_info(a:event, a:verbose)
+        let to_append ..= '  ' .. s:get_extra_info(a:event, a:verbose)
     endif
     let to_append = split(to_append, '\n')
     if len(to_append) >= 2
-        let indent = repeat(' ', strlen(matchstr(to_append[0], '^\d\+:\d\+\s\+\a\+\s\+')))
-        let to_append = to_append[0:0]  + map(to_append[1:], {_,v -> indent..v})
+        let indent = repeat(' ', matchstr(to_append[0], '^\d\+:\d\+\s\+\a\+\s\+')->strlen())
+        let to_append = to_append[0:0]  + map(to_append[1:], {_, v -> indent .. v})
     endif
     try
-        sil call system('tmux display -I -t '..s:pane_id, join(to_append, "\n").."\n")
+        sil call system('tmux display -I -t ' .. s:pane_id, join(to_append, "\n") .. "\n")
     catch /^Vim\%((\a\+)\)\=:E12:/
         " `E12` is raised if you log `OptionSet`, `'modeline'` is set, and `'modelines'` is greater than 0.{{{
         "
@@ -404,7 +406,7 @@ fu s:write(verbose, event, msg) abort "{{{2
         " So, `system()` raises `E12`.
         "}}}
     catch
-        return lg#catch()
+        return s:Catch()
     endtry
 endfu
 
@@ -418,6 +420,6 @@ fu logevents#complete(arglead, _l, _p) abort "{{{2
         END
         return join(options, "\n")
     endif
-    return join(copy(s:EVENTS), "\n")
+    return copy(s:EVENTS)->join("\n")
 endfu
 
