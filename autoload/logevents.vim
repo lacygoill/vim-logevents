@@ -301,7 +301,7 @@ fu s:get_events_to_log(events) abort "{{{2
     "}}}
     call map(a:events, {_, v -> getcompletion(v[-1:-1] =~# '\l' ? v .. '$' : v, 'event')})
     if empty(a:events) | return '' | endif
-    let events = join(a:events, '+')->eval()
+    let events = reduce(a:events, {a, v -> a + v}, [])
     " Make sure that all events are present inside `s:EVENTS`.{{{
     "
     " Otherwise,  if we  try to  log  a dangerous  event, which  is absent  from
@@ -364,7 +364,7 @@ endfu
 fu s:log(events, verbose) abort "{{{2
     sil call system('tmux display -I -t ' .. s:pane_id, "Started logging\n")
 
-    let biggest_width = copy(a:events)->map({_, v -> strlen(v)})->max()
+    let biggest_width = mapnew(a:events, {_, v -> strlen(v)})->max()
     augroup log_events | au!
         for event in a:events
             sil exe printf('au %s * call s:write(%d, "%s", "%s")',
