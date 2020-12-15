@@ -228,7 +228,7 @@ fu s:print_usage() abort "{{{2
               -stop                    stop logging
               -v                       increase verbosity
               -vv                      increase verbosity even more (<amatch>, <afile>, v:char, v:event, ...)
-              -vvv                     max verbosity (<abuf>)
+              -vvv                     max verbosity (necessary to get <abuf>)
     END
     echo join(usage, "\n")
 endfu
