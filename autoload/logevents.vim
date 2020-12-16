@@ -258,10 +258,10 @@ endfu
 
 fu s:close() abort "{{{2
     try
-        if !exists('#log_events') | return | endif
+        if !exists('#LogEvents') | return | endif
 
-        au! log_events
-        aug! log_events
+        au! LogEvents
+        aug! LogEvents
 
         sil call system('tmux kill-pane -t ' .. s:pane_id)
         unlet! s:pane_id
@@ -365,7 +365,7 @@ fu s:log(events, verbose) abort "{{{2
     sil call system('tmux display -I -t ' .. s:pane_id, "Started logging\n")
 
     let biggest_width = mapnew(a:events, {_, v -> strlen(v)})->max()
-    augroup log_events | au!
+    augroup LogEvents | au!
         for event in a:events
             sil exe printf('au %s * call s:write(%d, "%s", "%s")',
                 \ event, a:verbose, event, printf('%-*s', biggest_width, event))
