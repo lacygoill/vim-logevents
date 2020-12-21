@@ -7,7 +7,7 @@ import Catch from 'lg.vim'
 
 " Variables {{{1
 
-const s:DIR = getenv('XDG_RUNTIME_VIM') == v:null ? '/tmp' : $XDG_RUNTIME_VIM
+const s:DIR = getenv('XDG_RUNTIME_VIM') ?? '/tmp'
 
 let s:EVENTS = getcompletion('', 'event')
 
