@@ -163,7 +163,7 @@ fu s:info_textyankpost() abort
         \      v:event.operator,
         \      map(v:event.regcontents, {i, v -> i != 0 ? repeat(' ', 21) .. v : v})->join("\n"),
         \      v:event.regname,
-        \      v:event.regtype =~ '\d' ? 'C-v ' .. v:event.regtype[1:] : v:event.regtype,
+        \      v:event.regtype =~ '\d' ? 'C-v ' .. v:event.regtype[1 :] : v:event.regtype,
         \ )
 endfu
 
@@ -299,9 +299,9 @@ fu s:get_events_to_log(events) abort "{{{2
     " It's as if `getcompletion()` appends a `*` at the end.
     " To prevent that, we append `$`.
     "}}}
-    call map(a:events, {_, v -> getcompletion(v[-1:-1] =~# '\l' ? v .. '$' : v, 'event')})
+    call map(a:events, {_, v -> getcompletion(v[-1 : -1] =~# '\l' ? v .. '$' : v, 'event')})
     if empty(a:events) | return '' | endif
-    let events = reduce(a:events, {a, v -> a + v}, [])
+    let events = flatten(a:events)
     " Make sure that all events are present inside `s:EVENTS`.{{{
     "
     " Otherwise,  if we  try to  log  a dangerous  event, which  is absent  from
@@ -383,7 +383,7 @@ fu s:write(verbose, event, msg) abort "{{{2
     let to_append = split(to_append, '\n')
     if len(to_append) >= 2
         let indent = repeat(' ', matchstr(to_append[0], '^\d\+:\d\+\s\+\a\+\s\+')->strlen())
-        let to_append = to_append[0:0]  + map(to_append[1:], {_, v -> indent .. v})
+        let to_append = to_append[0 : 0]  + map(to_append[1 :], {_, v -> indent .. v})
     endif
     try
         sil call system('tmux display -I -t ' .. s:pane_id, join(to_append, "\n") .. "\n")
