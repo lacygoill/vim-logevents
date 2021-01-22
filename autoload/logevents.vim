@@ -260,7 +260,7 @@ def Clear(args: list<string>) #{{{2
         Error('nothing to clear')
         return
     endif
-    call('logevents#main', last_args)
+    call('logevents#main', [last_args])
 enddef
 
 def Stop(args: list<string>) #{{{2
