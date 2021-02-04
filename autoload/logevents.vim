@@ -196,7 +196,7 @@ def logevents#main(args: list<string>) #{{{2
     endif
     var idx_unknown_option: number = match(args,
         '-\%(\%(clear\|stop\|v\|vv\|vvv\)\%(\s\|$\)\)\@!\S*')
-    if idx_unknown_option != -1
+    if idx_unknown_option >= 0
         Error('unknown OPTION: ' .. args[idx_unknown_option])
         return
     endif
@@ -326,7 +326,7 @@ def GetEventsToLog(arg_events: list<string>): list<string> #{{{2
     if empty(events)
         return []
     endif
-    var flattened: list<string> = events->copy()->flatten()
+    var flattened: list<string> = events->flattennew()
     # Make sure that all events are present inside `EVENTS`.{{{
     #
     # Otherwise,  if we  try to  log  a dangerous  event, which  is absent  from
