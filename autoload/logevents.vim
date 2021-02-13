@@ -452,3 +452,16 @@ def logevents#complete(arglead: string, _l: any, _p: any): string #{{{2
     return copy(EVENTS)->join("\n")
 enddef
 
+def logevents#ClearNoise() #{{{2
+    if getline(1) !~ '\d\{2}:\d{2}'
+        :1d _
+        if getline(1) =~ '\<VimResized\>'
+            sil :1,/^\S/- d _
+        endif
+    endif
+    sil keepj keepp :%s/^.\{7}//e
+    sil keepj keepp g/^\%(OptionSet\|SourcePre\|SourcePost\)\s/ :.,/^\S/- d _
+    sil keepj keepp g/^\s*afile: "$/d _
+    exe 'sil keepj keepp :%s/^\S\+\s\+amatch:\s*\zs' .. $HOME->escape('/') .. '/\~/e'
+enddef
+
