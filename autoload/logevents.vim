@@ -50,7 +50,7 @@ const TOO_FREQUENT: list<string> =<< trim END
     SafeStateAgain
 END
 
-filter(EVENTS, (_, v) => index(DANGEROUS + SYNONYMS, v, 0, true) == -1)
+filter(EVENTS, (_, v: string): bool => index(DANGEROUS + SYNONYMS, v, 0, true) == -1)
 lockvar! EVENTS
 
 def InfoCompletedone(): string
@@ -160,7 +160,11 @@ def InfoTextyankpost(): string
         .. "\nv:event.regname: %s"
         .. "\nv:event.regtype: %s\n",
              v:event.operator,
-             map(v:event.regcontents, (i, v) => i != 0 ? repeat(' ', 21) .. v : v)->join("\n"),
+             v:event.regcontents
+                ->map((i: number, v: string) => i != 0
+                    ? repeat(' ', 21) .. v
+                    : v
+                    )->join("\n"),
              v:event.regname,
              v:event.regtype =~ '\d' ? 'C-v ' .. v:event.regtype[1 :] : v:event.regtype,
         )
@@ -321,27 +325,28 @@ def GetEventsToLog(arg_events: list<string>): list<string> #{{{2
     # It's as if `getcompletion()` appends a `*` at the end.
     # To prevent that, we append `$`.
     #}}}
-    var events: list<list<string>> = mapnew(arg_events, (_, v) =>
-        getcompletion(v[-1 : -1] =~ '\l' ? v .. '$' : v, 'event'))
+    var events: list<list<string>> = arg_events
+        ->mapnew((_, v: string): list<string> =>
+            getcompletion(v[-1 : -1] =~ '\l' ? v .. '$' : v, 'event'))
     if empty(events)
         return []
     endif
     var flattened: list<string> = events->flattennew()
-    # Make sure that all events are present inside `EVENTS`.{{{
-    #
-    # Otherwise,  if we  try to  log  a dangerous  event, which  is absent  from
-    # `EVENTS`, the next  `map()` will wrongly replace its name  with the last
-    # event in `EVENTS`, which is `WinNew` atm:
-    #
-    #       index(EVENTS, v, 0, true) == -1
-    #     ⇒ EVENTS[-1]
-    #     ⇒ 'WinNew'
-    #}}}
-    filter(flattened, (_, v) => index(EVENTS, v, 0, true) >= 0)
-    # normalize names
-    map(flattened, (_, v) => EVENTS[index(EVENTS, v, 0, true)])
+        # Make sure that all events are present inside `EVENTS`.{{{
+        #
+        # Otherwise, if  we try to log  a dangerous event, which  is absent from
+        # `EVENTS`, the next `map()` will wrongly replace its name with the last
+        # event in `EVENTS`, which is `WinNew` atm:
+        #
+        #       index(EVENTS, v, 0, true) == -1
+        #     ⇒ EVENTS[-1]
+        #     ⇒ 'WinNew'
+        #}}}
+        ->filter((_, v: string): bool => index(EVENTS, v, 0, true) >= 0)
+        # normalize names
+        ->map((_, v: string): string => EVENTS[index(EVENTS, v, 0, true)])
     if log_everything
-        filter(flattened, (_, v) => index(TOO_FREQUENT, v, 0, true) == -1)
+        filter(flattened, (_, v: string): bool => index(TOO_FREQUENT, v, 0, true) == -1)
     endif
     return flattened
 enddef
@@ -391,7 +396,9 @@ enddef
 def Log(events: list<string>, verbosity: number) #{{{2
     sil system('tmux display -I -t ' .. pane_id, "Started logging\n")
 
-    var biggest_width: number = mapnew(events, (_, v) => strlen(v))->max()
+    var biggest_width: number = events
+        ->mapnew((_, v: string): number => strlen(v))
+        ->max()
     augroup LogEvents | au!
         for event in events
             sil exe printf('au %s * Write(%d, "%s", "%s")',
@@ -411,7 +418,9 @@ def Write(verbosity: number, event: string, msg: string) #{{{2
     if len(to_append) >= 2
         var indent: string = repeat(' ',
             matchstr(to_append[0], '^\d\+:\d\+\s\+\a\+\s\+')->strlen())
-        to_append = [to_append[0]] + map(to_append[1 :], (_, v) => indent .. v)
+        to_append = [to_append[0]]
+            + to_append[1 :]
+                ->map((_, v: string): string => indent .. v)
     endif
     try
         sil system('tmux display -I -t ' .. pane_id, join(to_append, "\n") .. "\n")
