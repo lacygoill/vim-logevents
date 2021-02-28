@@ -8,5 +8,3 @@ var loaded = true
 #                           │
 com -nargs=* -bar -complete=custom,logevents#complete LogEvents logevents#main([<f-args>])
 
-nno dg<c-l> <cmd>call logevents#ClearNoise()<cr>
-
