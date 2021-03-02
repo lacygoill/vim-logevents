@@ -50,7 +50,7 @@ const TOO_FREQUENT: list<string> =<< trim END
     SafeStateAgain
 END
 
-filter(EVENTS, (_, v: string): bool => index(DANGEROUS + SYNONYMS, v, 0, true) == -1)
+EVENTS->filter((_, v: string): bool => index(DANGEROUS + SYNONYMS, v, 0, true) == -1)
 lockvar! EVENTS
 
 def InfoCompletedone(): string
@@ -161,13 +161,13 @@ def InfoTextyankpost(): string
         .. "\nv:event.regtype: %s\n",
              v:event.operator,
              v:event.regcontents
-                ->map((i: number, v: string) => i != 0
-                    ? repeat(' ', 21) .. v
-                    : v
-                    )->join("\n"),
+                ->map((i: number, v: string) =>
+                          i != 0
+                        ? repeat(' ', 21) .. v
+                        : v
+                )->join("\n"),
              v:event.regname,
-             v:event.regtype =~ '\d' ? 'C-v ' .. v:event.regtype[1 :] : v:event.regtype,
-        )
+             v:event.regtype =~ '\d' ? 'C-v ' .. v:event.regtype[1 :] : v:event.regtype)
 enddef
 
 const EVENT2EXTRA_INFO: dict<func> = {
@@ -327,11 +327,12 @@ def GetEventsToLog(arg_events: list<string>): list<string> #{{{2
     #}}}
     var events: list<list<string>> = arg_events
         ->mapnew((_, v: string): list<string> =>
-            getcompletion(v[-1 : -1] =~ '\l' ? v .. '$' : v, 'event'))
+                    getcompletion(v[-1 : -1] =~ '\l' ? v .. '$' : v, 'event'))
     if empty(events)
         return []
     endif
-    var flattened: list<string> = events->flattennew()
+    var flattened: list<string> = events
+        ->flattennew()
         # Make sure that all events are present inside `EVENTS`.{{{
         #
         # Otherwise, if  we try to log  a dangerous event, which  is absent from
@@ -346,7 +347,8 @@ def GetEventsToLog(arg_events: list<string>): list<string> #{{{2
         # normalize names
         ->map((_, v: string): string => EVENTS[index(EVENTS, v, 0, true)])
     if log_everything
-        filter(flattened, (_, v: string): bool => index(TOO_FREQUENT, v, 0, true) == -1)
+        flattened
+            ->filter((_, v: string): bool => index(TOO_FREQUENT, v, 0, true) == -1)
     endif
     return flattened
 enddef
@@ -419,8 +421,8 @@ def Write(verbosity: number, event: string, msg: string) #{{{2
         var indent: string = repeat(' ',
             matchstr(to_append[0], '^\d\+:\d\+\s\+\a\+\s\+')->strlen())
         to_append = [to_append[0]]
-            + to_append[1 :]
-                ->map((_, v: string): string => indent .. v)
+                   + to_append[1 :]
+                       ->map((_, v: string): string => indent .. v)
     endif
     try
         sil system('tmux display -I -t ' .. pane_id, join(to_append, "\n") .. "\n")
