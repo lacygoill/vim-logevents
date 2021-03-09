@@ -327,7 +327,7 @@ def GetEventsToLog(arg_events: list<string>): list<string> #{{{2
     #}}}
     var events: list<list<string>> = arg_events
         ->mapnew((_, v: string): list<string> =>
-                    getcompletion(v[-1 : -1] =~ '\l' ? v .. '$' : v, 'event'))
+                    getcompletion(v[-1] =~ '\l' ? v .. '$' : v, 'event'))
     if empty(events)
         return []
     endif
@@ -419,7 +419,7 @@ def Write(verbosity: number, event: string, msg: string) #{{{2
     to_append = split(to_append, '\n')
     if len(to_append) >= 2
         var indent: string = repeat(' ',
-            matchstr(to_append[0], '^\d\+:\d\+\s\+\a\+\s\+')->strlen())
+            matchstr(to_append[0], '^\d\+:\d\+\s\+\a\+\s\+')->strchars(true))
         to_append = [to_append[0]]
                    + to_append[1 :]
                        ->map((_, v: string): string => indent .. v)
