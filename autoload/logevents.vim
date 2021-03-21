@@ -380,7 +380,7 @@ def GetExtraInfo(event: string, verbosity: number): string #{{{2
         endif
     endif
 
-    if has_key(EVENT2EXTRA_INFO, event)
+    if EVENT2EXTRA_INFO->has_key(event)
         info ..= "\n" .. EVENT2EXTRA_INFO[event]()
     endif
     return info
@@ -419,7 +419,7 @@ def Write(verbosity: number, event: string, msg: string) #{{{2
     to_append = split(to_append, '\n')
     if len(to_append) >= 2
         var indent: string = repeat(' ',
-            matchstr(to_append[0], '^\d\+:\d\+\s\+\a\+\s\+')->strchars(true))
+            matchstr(to_append[0], '^\d\+:\d\+\s\+\a\+\s\+')->strcharlen())
         to_append = [to_append[0]]
                    + to_append[1 :]
                        ->map((_, v: string): string => indent .. v)
