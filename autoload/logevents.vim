@@ -67,7 +67,7 @@ def InfoCompletedone(): string
           get(v:completed_item, 'info', ''),
           get(v:completed_item, 'kind', ''),
           get(v:completed_item, 'abbr', ''),
-        )
+    )
 enddef
 
 # Why `get()`?{{{
@@ -101,7 +101,7 @@ def InfoCompletechanged(): string
               v:event.col,
               v:event.size,
               v:event.scrollbar,
-        )
+    )
 enddef
 
 def InfoFilechangedshell(): string
@@ -110,7 +110,7 @@ def InfoFilechangedshell(): string
         .. "\nchoice: %s",
               v:fcs_reason,
               v:fcs_choice,
-        )
+    )
 enddef
 
 def InfoInsertcharpre(): string
@@ -135,7 +135,7 @@ def InfoOptionset(): string
               v:option_command,
               v:option_oldlocal,
               v:option_oldglobal,
-        )
+    )
 enddef
 
 def InfoSwapexists(): string
@@ -146,7 +146,7 @@ def InfoSwapexists(): string
               v:swapchoice,
               v:swapcommand,
               v:swapname,
-        )
+    )
 enddef
 
 def InfoTermresponse(): string
@@ -181,7 +181,7 @@ const EVENT2EXTRA_INFO: dict<func> = {
     SwapExists: InfoSwapexists,
     TermResponse: InfoTermresponse,
     TextYankPost: InfoTextyankpost,
-    }
+}
 
 # Functions {{{1
 def logevents#main(args: list<string>) #{{{2
@@ -250,7 +250,7 @@ def PrintUsage() #{{{2
               -vv                      increase verbosity even more (<amatch>, <afile>, v:char, v:event, ...)
               -vvv                     max verbosity (necessary to get <abuf>)
     END
-    echo join(usage, "\n")
+    echo usage->join("\n")
 enddef
 
 def Clear(args: list<string>) #{{{2
@@ -411,7 +411,11 @@ def Log(events: list<string>, verbosity: number) #{{{2
     augroup END
 enddef
 
-def Write(verbosity: number, event: string, msg: string) #{{{2
+def Write( #{{{2
+    verbosity: number,
+    event: string,
+    msg: string
+)
     var to_append: any = strftime('%M:%S') .. '  ' .. msg
     if verbosity != 0
         to_append ..= '  ' .. GetExtraInfo(event, verbosity)
@@ -425,7 +429,7 @@ def Write(verbosity: number, event: string, msg: string) #{{{2
                        ->map((_, v: string): string => indent .. v)
     endif
     try
-        sil system('tmux display -I -t ' .. pane_id, join(to_append, "\n") .. "\n")
+        sil system('tmux display -I -t ' .. pane_id, to_append->join("\n") .. "\n")
     catch /^Vim\%((\a\+)\)\=:E12:/
         # `E12` is raised if you log `OptionSet`, `'modeline'` is set, and `'modelines'` is greater than 0.{{{
         #
@@ -450,7 +454,7 @@ def Write(verbosity: number, event: string, msg: string) #{{{2
     endtry
 enddef
 
-def logevents#complete(arglead: string, _l: any, _p: any): string #{{{2
+def logevents#complete(arglead: string, _, _): string #{{{2
     if arglead[0] == '-'
         var options: list<string> =<< trim END
             -clear
@@ -458,7 +462,7 @@ def logevents#complete(arglead: string, _l: any, _p: any): string #{{{2
             -v
             -vv
         END
-        return join(options, "\n")
+        return options->join("\n")
     endif
     return copy(EVENTS)->join("\n")
 enddef
