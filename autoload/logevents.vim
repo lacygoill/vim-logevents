@@ -403,7 +403,7 @@ def Log(events: list<string>, verbosity: number) #{{{2
         ->max()
     augroup LogEvents | au!
         for event in events
-            sil exe printf('au %s * Write(%d, "%s", "%s")',
+            exe printf('sil au %s * Write(%d, "%s", "%s")',
                 event, verbosity, event, printf('%-*s', biggest_width, event))
         endfor
         # close the tmux pane when we quit Vim, if we didn't close it already
@@ -422,8 +422,10 @@ def Write( #{{{2
     endif
     to_append = split(to_append, '\n')
     if len(to_append) >= 2
-        var indent: string = repeat(' ',
-            matchstr(to_append[0], '^\d\+:\d\+\s\+\a\+\s\+')->strcharlen())
+        var indent: string = repeat(
+            ' ',
+            to_append[0]->matchstr('^\d\+:\d\+\s\+\a\+\s\+')->strcharlen()
+        )
         to_append = [to_append[0]]
                    + to_append[1 :]
                        ->map((_, v: string): string => indent .. v)
