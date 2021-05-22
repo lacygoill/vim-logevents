@@ -320,7 +320,7 @@ def GetEventsToLog(arg_events: list<string>): list<string> #{{{2
     # It's due to `getcompletion()`:
     #
     #     :echo getcompletion('safestate', 'event')
-    #     ['SafeState', 'SafeStateAgain']~
+    #     ['SafeState', 'SafeStateAgain']˜
     #
     # It's as if `getcompletion()` appends a `*` at the end.
     # To prevent that, we append `$`.
