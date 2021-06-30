@@ -234,7 +234,7 @@ var last_args: list<string>
 
 def Error(msg: string) #{{{2
     echohl ErrorMsg
-    echom 'LogEvents: ' .. msg
+    echomsg 'LogEvents: ' .. msg
     echohl NONE
 enddef
 
@@ -285,10 +285,10 @@ def Close() #{{{2
             return
         endif
 
-        au! LogEvents
-        aug! LogEvents
+        autocmd! LogEvents
+        augroup! LogEvents
 
-        sil system('tmux kill-pane -t ' .. pane_id)
+        silent system('tmux kill-pane -t ' .. pane_id)
         pane_id = ''
     catch
         Catch()
@@ -392,22 +392,22 @@ def OpenTmuxPane(verbosity: number) #{{{2
     var cmd: string = 'tmux splitw -c ' .. shellescape(DIR) .. ' -dI '
     cmd ..= layout .. ' -p ' .. percent
     cmd ..= ' -PF "#D"'
-    sil pane_id = system(cmd)->trim("\n", 2)
+    silent pane_id = system(cmd)->trim("\n", 2)
 enddef
 
 def Log(events: list<string>, verbosity: number) #{{{2
-    sil system('tmux display -I -t ' .. pane_id, "Started logging\n")
+    silent system('tmux display -I -t ' .. pane_id, "Started logging\n")
 
     var biggest_width: number = events
         ->mapnew((_, v: string): number => strlen(v))
         ->max()
-    augroup LogEvents | au!
+    augroup LogEvents | autocmd!
         for event in events
-            exe printf('sil au %s * Write(%d, "%s", "%s")',
+            execute printf('silent autocmd %s * Write(%d, "%s", "%s")',
                 event, verbosity, event, printf('%-*s', biggest_width, event))
         endfor
         # close the tmux pane when we quit Vim, if we didn't close it already
-        au VimLeave * Close()
+        autocmd VimLeave * Close()
     augroup END
 enddef
 
@@ -431,7 +431,7 @@ def Write( #{{{2
                        ->map((_, v: string): string => indent .. v)
     endif
     try
-        sil system('tmux display -I -t ' .. pane_id, to_append->join("\n") .. "\n")
+        silent system('tmux display -I -t ' .. pane_id, to_append->join("\n") .. "\n")
     catch /^Vim\%((\a\+)\)\=:E12:/
         # `E12` is raised if you log `OptionSet`, `'modeline'` is set, and `'modelines'` is greater than 0.{{{
         #
@@ -440,10 +440,10 @@ def Write( #{{{2
         #
         # MWE:
         #
-        #     $ vim -Nu NONE +'au OptionSet * call system("")'
-        #     :h
+        #     $ vim -Nu NONE +'autocmd OptionSet * call system("")'
+        #     :help
         #
-        # When `:h` is run, the bottom modeline is processed.
+        # When `:help` is run, the bottom modeline is processed.
         # It sets options, which fires `OptionSet`, which invokes `system()`.
         #
         # However,  when  a  modeline  is  processed,  Vim  temporarily  forbids
