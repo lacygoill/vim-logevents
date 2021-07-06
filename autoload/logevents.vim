@@ -1,8 +1,5 @@
 vim9script noclear
 
-if exists('loaded') | finish | endif
-var loaded = true
-
 import Catch from 'lg.vim'
 
 # Variables {{{1
@@ -345,7 +342,7 @@ def GetEventsToLog(arg_events: list<string>): list<string> #{{{2
         #}}}
         ->filter((_, v: string): bool => index(EVENTS, v, 0, true) >= 0)
         # normalize names
-        ->map((_, v: string): string => EVENTS[index(EVENTS, v, 0, true)])
+        ->map((_, v: string) => EVENTS[index(EVENTS, v, 0, true)])
     if log_everything
         flattened
             ->filter((_, v: string): bool => index(TOO_FREQUENT, v, 0, true) == -1)
@@ -428,7 +425,7 @@ def Write( #{{{2
         )
         to_append = [to_append[0]]
                    + to_append[1 :]
-                       ->map((_, v: string): string => indent .. v)
+                       ->map((_, v: string) => indent .. v)
     endif
     try
         silent system('tmux display -I -t ' .. pane_id, to_append->join("\n") .. "\n")
