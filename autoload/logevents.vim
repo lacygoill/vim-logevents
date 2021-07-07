@@ -399,7 +399,7 @@ def Log(events: list<string>, verbosity: number) #{{{2
         ->mapnew((_, v: string): number => strlen(v))
         ->max()
     augroup LogEvents | autocmd!
-        for event in events
+        for event: string in events
             execute printf('silent autocmd %s * Write(%d, "%s", "%s")',
                 event, verbosity, event, printf('%-*s', biggest_width, event))
         endfor
